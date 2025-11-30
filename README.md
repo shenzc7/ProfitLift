@@ -4,11 +4,17 @@
 
 ProfitLift helps retailers discover product associations that actually drive profit — not just the most frequent patterns. Built for Indian retail with festival awareness and GST-linked margins.
 
-> **🎯 Windows Users:** Copy-paste this **one command** to install everything:
+> **🎯 Windows Users:** Choose your preferred installation method:
+>
+> **Option 1 - Copy-Paste (Fastest):**
 > ```powershell
 > powershell -ExecutionPolicy Bypass -c "irm https://raw.githubusercontent.com/shenzc7/ProfitLift/main/scripts/windows/oneclick_setup.ps1 | iex"
 > ```
-> Creates a desktop icon - just double-click to launch! ✨
+>
+> **Option 2 - Download & Double-Click:**
+> [📦 Download Install_ProfitLift.bat](Install_ProfitLift.bat) → Double-click to run
+>
+> Either way: Creates desktop icon - just double-click to launch! ✨
 
 ---
 
@@ -23,22 +29,28 @@ ProfitLift helps retailers discover product associations that actually drive pro
 
 ---
 
-## 🚀 One-Command Windows Install
+## 🚀 Windows Installation (Choose Your Method)
 
-**Copy-paste this single command in PowerShell (admin recommended):**
+### Method 1: Copy-Paste Command (Recommended)
+**One command in PowerShell (admin recommended):**
 
 ```powershell
 powershell -ExecutionPolicy Bypass -c "irm https://raw.githubusercontent.com/shenzc7/ProfitLift/main/scripts/windows/oneclick_setup.ps1 | iex"
 ```
 
-**What it does:**
+### Method 2: Download & Double-Click
+1. [📦 Download Install_ProfitLift.bat](Install_ProfitLift.bat)
+2. Double-click the downloaded file
+3. Follow the prompts
+
+**What both methods do:**
 - ✅ Installs Git, Python 3.11, Node.js LTS, Rust, Visual Studio Build Tools
 - ✅ Clones ProfitLift repository
 - ✅ Creates virtual environment & installs dependencies
 - ✅ Builds Tauri desktop app + packages backend
 - ✅ **Creates desktop icon** - just double-click to launch!
 
-**That's it!** One command → desktop icon → done. Works on any Windows machine.
+**That's it!** Install → desktop icon → done. Works on any Windows machine.
 
 ---
 
