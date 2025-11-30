@@ -1,18 +1,67 @@
 [CmdletBinding()]
 param(
-    [string]$RepoUrl = "https://github.com/nonshenz007/ProfitLift.git",
+    [string]$RepoUrl = "https://github.com/shenzc7/ProfitLift.git",
     [string]$Branch = "main",
     [string]$InstallDir = "$env:USERPROFILE\\ProfitLift",
-    [switch]$UseLocalRepo
+    [switch]$UseLocalRepo,
+    [switch]$ForceRebuild
 )
 
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
+Set-StrictMode -Version Latest
+
+$logPath = Join-Path $env:TEMP "profitlift_setup.log"
+try { Start-Transcript -Path $logPath -Append -ErrorAction SilentlyContinue } catch {}
+
+function Write-Step { param([string]$Message) Write-Host "`n==> $Message" -ForegroundColor Cyan }
+function Write-Info { param([string]$Message) Write-Host "    $Message" }
 
 function Assert-Winget {
     if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
         throw "winget is required but not available. Install winget from Microsoft Store, then rerun this script."
     }
+}
+
+function Test-Version {
+    param(
+        [string]$Output,
+        [string]$Minimum,
+        [string]$Name
+    )
+
+    $numeric = $Output -replace '[^0-9\\.]', ''
+    $parsed = $null
+    if (-not [version]::TryParse($numeric, [ref]$parsed)) {
+        Write-Warning "Could not parse $Name version from '$Output'. Continuing."
+        return
+    }
+
+    if ($parsed -lt [version]$Minimum) {
+        throw "$Name $parsed found, but $Minimum or newer is required."
+    }
+}
+
+function Require-Command {
+    param(
+        [string]$Name,
+        [string]$MinimumVersion = $null
+    )
+
+    $cmd = Get-Command $Name -ErrorAction SilentlyContinue
+    if (-not $cmd) {
+        throw "$Name not found on PATH. Open a new PowerShell window (to refresh PATH) and rerun."
+    }
+
+    if ($MinimumVersion) {
+        $verOut = & $cmd.Source --version 2>&1
+        Test-Version -Output $verOut -Minimum $MinimumVersion -Name $Name
+        Write-Info "$Name $verOut"
+    } else {
+        Write-Info "$Name found at $($cmd.Source)"
+    }
+
+    return $cmd.Source
 }
 
 function Install-WingetPackage {
@@ -39,6 +88,42 @@ function Ensure-Prereqs {
     Install-WingetPackage -Id "OpenJS.NodeJS.LTS" -Name "Node.js LTS"
     Install-WingetPackage -Id "Rustlang.Rust.MSVC" -Name "Rust (MSVC toolchain)"
     Install-WingetPackage -Id "Microsoft.VisualStudio.2022.BuildTools" -Name "Visual Studio Build Tools (for Tauri/Rust)" -ExtraArgs '--override "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --passive --norestart"'
+}
+
+function Preflight-Checks {
+    Write-Step "Preflight: verifying required tools are on PATH"
+    $pythonPath = $null
+
+    try {
+        $pythonPath = Require-Command -Name "python" -MinimumVersion "3.11"
+    } catch {
+        $pythonPath = $null
+    }
+
+    if (-not $pythonPath) {
+        $pyLauncher = Get-Command py -ErrorAction SilentlyContinue
+        if ($pyLauncher) {
+            $verOut = & $pyLauncher.Source -3 --version 2>&1
+            Test-Version -Output $verOut -Minimum "3.11" -Name "Python"
+            $pythonPath = (& $pyLauncher.Source -3 -c "import sys; print(sys.executable)") -replace "`n","" -replace "`r",""
+        }
+    }
+
+    if (-not $pythonPath) {
+        throw "Python 3.11 not found on PATH. Open a new PowerShell session and rerun the script."
+    }
+
+    $nodePath = Require-Command -Name "node" -MinimumVersion "18.0"
+    $npmPath = Require-Command -Name "npm" -MinimumVersion "9.0"
+    Require-Command -Name "git" -MinimumVersion "2.30" | Out-Null
+    Require-Command -Name "rustc" -MinimumVersion "1.72" | Out-Null
+    Require-Command -Name "cargo" -MinimumVersion "1.72" | Out-Null
+
+    return @{
+        PythonExe = $pythonPath.Trim()
+        NodeExe   = $nodePath
+        NpmExe    = $npmPath
+    }
 }
 
 function Resolve-RepoRoot {
@@ -74,60 +159,98 @@ function Resolve-RepoRoot {
 }
 
 function Ensure-Venv {
-    param([string]$Root)
-    $venvPath = Join-Path $Root ".venv"
-    $pythonExe = ""
+    param(
+        [string]$Root,
+        [string]$PythonExeHint
+    )
 
-    $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
-    if (-not $pythonCmd) {
-        $pythonCmd = Get-Command py -ErrorAction SilentlyContinue
-    }
-    if (-not $pythonCmd) {
-        throw "Python executable not found on PATH. Confirm Python 3.11 is installed and restart PowerShell."
+    $venvPath = Join-Path $Root ".venv"
+    $pythonExe = $PythonExeHint
+
+    if (-not $pythonExe) {
+        $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
+        if (-not $pythonCmd) {
+            $pythonCmd = Get-Command py -ErrorAction SilentlyContinue
+        }
+        if (-not $pythonCmd) {
+            throw "Python executable not found on PATH. Confirm Python 3.11 is installed and restart PowerShell."
+        }
+        $pythonExe = $pythonCmd.Source
     }
 
     if (-not (Test-Path $venvPath)) {
-        Write-Host "Creating Python virtual environment ..."
-        & $pythonCmd.Source -m venv $venvPath
+        Write-Step "Creating Python virtual environment ..."
+        & $pythonExe -m venv $venvPath
     }
 
-    $pythonExe = Join-Path $venvPath "Scripts\\python.exe"
-    & $pythonExe -m pip install --upgrade pip
-    & $pythonExe -m pip install -r (Join-Path $Root "requirements.txt")
-    return $pythonExe
+    $venvPython = Join-Path $venvPath "Scripts\\python.exe"
+    Write-Step "Installing backend dependencies ..."
+    & $venvPython -m pip install --upgrade pip setuptools wheel
+    & $venvPython -m pip install -r (Join-Path $Root "requirements.txt")
+    return $venvPython
 }
 
 function Build-Frontend {
-    param([string]$Root)
+    param(
+        [string]$Root,
+        [string]$NpmExe,
+        [switch]$Force
+    )
 
     $frontendDir = Join-Path $Root "app\\frontend"
     if (-not (Test-Path $frontendDir)) {
         throw "Frontend directory not found at $frontendDir"
     }
 
-    if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
-        throw "npm not found on PATH. Restart PowerShell so winget additions take effect, then rerun."
+    $desktopExe = Join-Path $frontendDir "src-tauri\\target\\release\\profitlift.exe"
+    if ((Test-Path $desktopExe) -and -not $Force) {
+        Write-Host "Tauri desktop bundle already exists. Skipping rebuild (use -ForceRebuild to force)."
+        return
     }
 
-    Write-Host "Installing frontend dependencies ..."
+    if (-not $NpmExe) {
+        $npmCmd = Get-Command npm -ErrorAction SilentlyContinue
+        if (-not $npmCmd) {
+            throw "npm not found on PATH. Restart PowerShell so winget additions take effect, then rerun."
+        }
+        $NpmExe = $npmCmd.Source
+    }
+
+    Write-Step "Installing frontend dependencies ..."
     pushd $frontendDir
-    npm install
-    Write-Host "Building Tauri desktop bundle ..."
+    & $NpmExe install --no-fund --no-audit
+    if ($LASTEXITCODE -ne 0) { throw "npm install failed." }
+
+    Write-Step "Building Tauri desktop bundle ..."
     $env:VITE_API_URL = "http://localhost:8000"
-    npm run tauri build
+    & $NpmExe run tauri build
+    $exit = $LASTEXITCODE
     Remove-Item Env:VITE_API_URL -ErrorAction SilentlyContinue
     popd
+
+    if ($exit -ne 0) { throw "npm run tauri build failed." }
 }
 
 function Build-Backend {
     param(
         [string]$Root,
-        [string]$PythonExe
+        [string]$PythonExe,
+        [switch]$Force
     )
 
-    Write-Host "Packaging backend with PyInstaller ..."
+    $backendExe = Join-Path $Root "dist\\ProfitLift\\ProfitLift.exe"
+    if ((Test-Path $backendExe) -and -not $Force) {
+        Write-Host "Backend executable already exists. Skipping rebuild (use -ForceRebuild to force)."
+        return
+    }
+
+    Write-Step "Packaging backend with PyInstaller ..."
     pushd $Root
     & $PythonExe -m PyInstaller ProfitLift.spec
+    if ($LASTEXITCODE -ne 0) {
+        popd
+        throw "PyInstaller build failed."
+    }
     popd
 }
 
@@ -158,17 +281,45 @@ function Create-Shortcut {
     Write-Host "Desktop shortcut created at $shortcutPath"
 }
 
+function Postflight-Verify {
+    param([string]$Root)
+
+    $backendExe = Join-Path $Root "dist\\ProfitLift\\ProfitLift.exe"
+    $frontendExe = Join-Path $Root "app\\frontend\\src-tauri\\target\\release\\profitlift.exe"
+    $missing = @()
+
+    if (-not (Test-Path $backendExe)) { $missing += $backendExe }
+    if (-not (Test-Path $frontendExe)) { $missing += $frontendExe }
+
+    if ($missing.Count -gt 0) {
+        Write-Warning "Build artifacts missing: $($missing -join ', '). Review $logPath for errors."
+    } else {
+        Write-Step "Verification complete: backend and desktop bundles are present."
+    }
+}
+
 Write-Host "=== ProfitLift One-Click Windows Setup ==="
 Write-Host "Repo URL: $RepoUrl"
 Write-Host "Target directory: $InstallDir"
+Write-Host "Log: $logPath"
 Write-Host ""
 
-Ensure-Prereqs
-$repoRoot = Resolve-RepoRoot
-$pythonExe = Ensure-Venv -Root $repoRoot
-Build-Frontend -Root $repoRoot
-Build-Backend -Root $repoRoot -PythonExe $pythonExe
-Create-Shortcut -Root $repoRoot
+try {
+    Write-Step "Installing prerequisites with winget (idempotent)"
+    Ensure-Prereqs
 
-Write-Host ""
-Write-Host "Setup complete. Double-click the 'ProfitLift' icon on your desktop to launch the backend and Tauri app."
+    $tools = Preflight-Checks
+    $repoRoot = Resolve-RepoRoot
+    $pythonExe = Ensure-Venv -Root $repoRoot -PythonExeHint $tools.PythonExe
+    Build-Frontend -Root $repoRoot -NpmExe $tools.NpmExe -Force:$ForceRebuild
+    Build-Backend -Root $repoRoot -PythonExe $pythonExe -Force:$ForceRebuild
+    Create-Shortcut -Root $repoRoot
+    Postflight-Verify -Root $repoRoot
+
+    Write-Host ""
+    Write-Host "Setup complete. Double-click the 'ProfitLift' icon on your desktop to launch the backend and Tauri app."
+    Write-Host "If anything fails, check the log at $logPath and rerun with -ForceRebuild to rebuild everything."
+}
+finally {
+    try { Stop-Transcript | Out-Null } catch {}
+}

@@ -49,6 +49,7 @@ powershell -ExecutionPolicy Bypass -c "irm https://raw.githubusercontent.com/she
 - ✅ Creates virtual environment & installs dependencies
 - ✅ Builds Tauri desktop app + packages backend
 - ✅ **Creates desktop icon** - just double-click to launch!
+- ✅ Skips rebuilds if artifacts already exist (use `-ForceRebuild` to rebuild); writes a log to `%TEMP%\profitlift_setup.log`
 
 **That's it!** Install → desktop icon → done. Works on any Windows machine.
 
