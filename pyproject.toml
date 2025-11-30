@@ -1,0 +1,16 @@
+[project]
+name = "profitlift"
+version = "1.0.0"
+description = "Context-Aware Profit-Optimized Market Basket Analysis"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[project.scripts]
+profitlift-api = "app.api.main:run"
+profitlift-ui = "app.ui.main:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"

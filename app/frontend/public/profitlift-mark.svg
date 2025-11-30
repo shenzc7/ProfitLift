@@ -1,0 +1,35 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="paint0_linear" x1="20" y1="18" x2="150" y2="162" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1220"/>
+      <stop offset="1" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="paint1_linear" x1="36" y1="46" x2="144" y2="136" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B82F6" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#22D3EE" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="paint2_linear" x1="52" y1="92" x2="128" y2="132" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+    <radialGradient id="paint3_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(128 40) rotate(120) scale(90)">
+      <stop stop-color="#22D3EE" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#0B1220" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="10" y="10" width="160" height="160" rx="32" fill="url(#paint0_linear)"/>
+  <rect x="10" y="10" width="160" height="160" rx="32" fill="url(#paint3_radial)"/>
+  <rect x="16" y="16" width="148" height="148" rx="28" stroke="url(#paint1_linear)" stroke-opacity="0.3" stroke-width="2"/>
+  <path d="M54 124C54 106 64 94 76 94H84V134H54V124Z" fill="url(#paint1_linear)" opacity="0.9"/>
+  <path d="M86 134V82C86 70 94 62 106 62H112V134H86Z" fill="url(#paint2_linear)" opacity="0.9"/>
+  <path d="M120 134V74C120 66.268 126.268 60 134 60H140V134H120Z" fill="#22D3EE" fill-opacity="0.85"/>
+  <path d="M76 116L110 66L140 94" stroke="url(#paint2_linear)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="110" cy="66" r="8" fill="#22D3EE"/>
+  <circle cx="140" cy="94" r="8" fill="#3B82F6"/>
+  <circle cx="76" cy="116" r="7" fill="#0B1220" stroke="#22D3EE" stroke-width="4"/>
+  <circle cx="56" cy="66" r="6" fill="#3B82F6" fill-opacity="0.5"/>
+  <circle cx="92" cy="46" r="4" fill="#22D3EE" fill-opacity="0.7"/>
+  <path d="M42 140H136" stroke="url(#paint1_linear)" stroke-opacity="0.5" stroke-width="3" stroke-linecap="round"/>
+  <path d="M48 50C48 47.7909 49.7909 46 52 46H64C66.2091 46 68 47.7909 68 50C68 52.2091 66.2091 54 64 54H52C49.7909 54 48 52.2091 48 50Z" fill="#111827"/>
+  <path d="M114 44C114 41.7909 115.791 40 118 40H132C134.209 40 136 41.7909 136 44C136 46.2091 134.209 48 132 48H118C115.791 48 114 46.2091 114 44Z" fill="#0F172A"/>
+</svg>

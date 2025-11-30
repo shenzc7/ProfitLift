@@ -1,0 +1,67 @@
+item_id,item_name,category,subcategory,base_price,margin_pct,gst_rate,avg_daily_sales,seasonal_multiplier,festival_relevance,supplier_cost,competitor_price,shelf_life_days,storage_type,promotion_eligible,bulk_discount_threshold
+MILK_500ML,Milk 500ml,Dairy,Liquid Milk,28,0.15,0.05,45,1.0,0.3,23.8,26,3,refrigerated,0,10
+MILK_1L,Milk 1L,Dairy,Liquid Milk,54,0.15,0.05,35,1.0,0.3,46.35,52,3,refrigerated,1,5
+BREAD_BROWN,Brown Bread 400g,Bakery,Bread,45,0.25,0.05,30,0.9,0.2,36,42,2,ambient,0,8
+BREAD_WHT,White Bread 400g,Bakery,Bread,40,0.25,0.05,25,0.9,0.2,32,38,2,ambient,0,8
+BUTTER_AMUL,Amul Butter 100g,Dairy,Butter,56,0.18,0.12,20,0.95,0.4,46.08,54,15,refrigerated,1,12
+BANANA_YEL,Yellow Banana 500g,Fruits,Fresh Fruits,25,0.35,0.05,40,1.2,0.6,16.25,23,5,ambient,0,15
+TEA_BROK,Tea Brooke Bond 500g,Beverages,Tea,180,0.22,0.12,15,0.8,0.3,142.4,175,365,ambient,1,3
+SUGAR,Sugar 1kg,Grocery,Sugar,45,0.12,0.05,25,0.9,0.1,40.2,43,730,ambient,0,20
+BISCUIT_MARIE,Marie Biscuit 200g,Bakery,Biscuits,25,0.28,0.12,35,0.85,0.2,17.75,24,180,ambient,0,24
+BISCUIT_PARLE,Parle-G Biscuit 100g,Bakery,Biscuits,20,0.28,0.12,40,0.85,0.2,14.4,19,180,ambient,0,30
+ATTA_5KG,Atta 5kg,Grocery,Flour,280,0.15,0.05,12,0.95,0.7,238,275,180,ambient,1,2
+ATTA_10KG,Atta 10kg,Grocery,Flour,520,0.12,0.05,8,0.95,0.7,457.6,510,180,ambient,1,1
+TOOR_DAL,Toor Dal 1kg,Grocery,Pulses,180,0.18,0.05,18,0.9,0.4,147.6,175,365,ambient,0,5
+OIL_SUN,Sunflower Oil 1L,Grocery,Oil,160,0.14,0.12,15,0.85,0.2,137.6,155,365,ambient,1,4
+ONION,Onion 1kg,Vegetables,Fresh Vegetables,35,0.25,0.05,50,1.3,0.5,22.75,32,30,ambient,0,25
+POTATO,Potato 1kg,Vegetables,Fresh Vegetables,30,0.30,0.05,45,1.2,0.5,19.5,28,45,ambient,0,30
+CORNFLAKES,Cornflakes 500g,Breakfast,Cereals,120,0.25,0.12,22,0.8,0.1,96,115,365,ambient,1,6
+JAM_MIXED,Mixed Fruit Jam 200g,Pantry,Jam,85,0.35,0.12,12,0.9,0.3,56.95,82,270,ambient,0,8
+PANEER,Paneer 500g,Dairy,Fresh Cheese,340,0.18,0.05,10,0.9,0.4,278.8,330,4,refrigerated,0,3
+PALAK,Palak 500g,Vegetables,Leafy Vegetables,40,0.30,0.05,25,1.1,0.6,26,38,3,refrigerated,0,10
+JEERA,Jeera 200g,Spices,Whole Spices,85,0.25,0.05,15,0.85,0.5,68,82,730,ambient,0,6
+GARAM_MASALA,Garam Masala 100g,Spices,Ground Spices,120,0.30,0.12,8,0.8,0.6,84,115,365,ambient,0,4
+COFFEE_FILTER,Filter Coffee 500g,Beverages,Coffee,350,0.24,0.12,12,0.75,0.2,273,340,365,ambient,1,2
+IDLI_BATTER,Idli Batter 1kg,Prepared,Batter,80,0.30,0.12,20,1.0,0.3,56,77,2,refrigerated,0,8
+COCONUT_OIL,Coconut Oil 1L,Grocery,Oil,280,0.14,0.12,10,0.9,0.4,243.2,270,730,ambient,0,3
+SAMBAR_POWDER,Sambar Powder 200g,Spices,Spice Mix,95,0.22,0.12,18,0.9,0.3,75.05,92,365,ambient,0,5
+CHUTNEY_COCONUT,Coconut Chutney 200g,Prepared,Chutney,65,0.35,0.12,15,0.95,0.4,42.25,63,7,refrigerated,0,6
+CURD,Fresh Curd 500g,Dairy,Curd,45,0.20,0.05,30,0.95,0.3,36,43,4,refrigerated,0,15
+MANGO_PICKLE,Mango Pickle 400g,Pickles,Pickle,120,0.28,0.12,8,0.8,0.5,84,115,365,ambient,0,4
+RICE_BASMATI,Basmati Rice 5kg,Grocery,Rice,450,0.14,0.05,10,0.9,0.4,391.5,435,730,ambient,1,2
+ALMOND,Almonds 500g,Dry Fruits,Nuts,450,0.28,0.12,6,0.7,0.8,315,435,730,ambient,1,2
+CAKE_CHOC,Chocolate Cake 500g,Bakery,Cake,250,0.35,0.12,8,0.8,0.6,162.5,240,3,refrigerated,0,3
+COKE,Coca Cola 600ml,Beverages,Soft Drink,60,0.15,0.18,25,0.9,0.2,51,58,180,refrigerated,1,12
+DIYA_PACK,Diya Pack (21 pcs),Pooja,Pooja Items,150,0.35,0.12,5,0.3,1.0,97.5,145,1095,ambient,0,2
+RANGOLI_COLOR,Rangoli Colors,Pooja,Pooja Items,120,0.40,0.12,4,0.2,1.0,72,115,1095,ambient,0,2
+COCONUT,Fresh Coconut,Pooja,Pooja Items,35,0.25,0.05,12,0.8,0.9,28,33,30,ambient,0,10
+AGARBATTI,Agarbatti Pack,Pooja,Pooja Items,85,0.38,0.12,10,0.7,0.8,52.7,82,730,ambient,0,5
+MASALA_DOSA,Ready Masala Dosa,Prepared,Ready Food,95,0.35,0.12,18,1.0,0.3,61.75,92,1,refrigerated,0,6
+SAMBAR,Sambar 500ml,Prepared,Ready Food,75,0.30,0.12,20,1.0,0.3,52.5,72,2,refrigerated,0,8
+CHUTNEY_TOMATO,Tomato Chutney 200g,Prepared,Chutney,45,0.35,0.12,12,0.95,0.4,29.25,43,7,refrigerated,0,8
+VEG_BIRYANI,Ready Veg Biryani,Prepared,Ready Food,250,0.32,0.12,12,0.9,0.5,168,240,1,refrigerated,0,4
+RAITA,Fresh Raita 250g,Dairy,Raita,60,0.25,0.05,18,0.95,0.4,48,58,3,refrigerated,0,6
+PAPAD,Lijjat Papad,Snacks,Papad,55,0.20,0.12,22,0.9,0.3,44,53,180,ambient,0,10
+PURI_PACK,Ready Puri Pack,Bakery,Ready Food,45,0.28,0.12,15,1.0,0.4,31.5,43,1,refrigerated,0,5
+SHRIKHAND,Shrikhand 500g,Dairy,Sweetened Dairy,180,0.22,0.05,10,0.8,0.5,142.2,175,7,refrigerated,0,3
+PICKLE_MIX,Mixed Pickle 400g,Pickles,Pickle,95,0.28,0.12,12,0.8,0.5,66.5,92,365,ambient,0,4
+MODAK,Ukdiche Modak,Sweets,Traditional Sweet,280,0.30,0.12,6,0.4,1.0,196,270,2,refrigerated,0,2
+DURVA_GRASS,Durva Grass Bundle,Pooja,Pooja Items,25,0.60,0.05,3,0.2,1.0,10,24,7,ambient,0,1
+PATAKA_BOX,Pataka Variety Box,Crackers,Crackers,800,0.30,0.18,4,0.1,1.0,560,780,180,ambient,0,1
+TRICOLOR_FLAG,Indian Flag,Independence,Decorative,50,0.50,0.12,3,0.1,1.0,25,48,1095,ambient,0,1
+MITHAI_BOX,Mithai Assorted Box,Sweets,Assorted Sweets,400,0.24,0.12,5,0.6,0.8,307.2,390,3,refrigerated,0,2
+GULAB_JAMUN,Gulab Jamun 500g,Sweets,Traditional Sweet,200,0.28,0.12,8,0.7,0.6,144,195,3,refrigerated,0,3
+PLUM_CAKE,Christmas Plum Cake,Bakery,Cake,350,0.35,0.12,4,0.2,1.0,227.5,340,7,refrigerated,0,1
+WINE_GRAPE,Grape Wine 750ml,Beverages,Wine,450,0.28,0.18,3,0.3,0.4,315,435,1095,ambient,0,1
+THANDAI,Thandai Mix 200g,Beverages,Traditional Drink,180,0.30,0.12,6,0.3,1.0,126,175,365,ambient,0,2
+GUJIYA,Gujiya 500g,Sweets,Festival Sweet,220,0.28,0.12,4,0.2,1.0,154,213,5,refrigerated,0,1
+GULAL,Gulal Colors,Holi,Festival Item,80,0.45,0.12,8,0.1,1.0,43.6,77,730,ambient,0,3
+PICHKARI,Water Gun,Holi,Festival Item,150,0.40,0.12,5,0.1,1.0,96,145,1095,ambient,0,2
+BALLOONS,Color Balloons Pack,Holi,Festival Item,25,0.50,0.12,12,0.1,1.0,12.5,24,365,ambient,0,5
+MANGO_AAMRAS,Mango Aamras 1L,Beverages,Juice,120,0.28,0.12,10,0.6,0.7,84,115,6,refrigerated,1,4
+ALPHONSO_MANGO,Alphonso Mango 1kg,Fruits,Seasonal Fruit,450,0.35,0.05,8,0.4,0.8,292.5,435,10,refrigerated,0,2
+LEMON,Lemon 250g,Fruits,Citrus,25,0.30,0.05,20,1.0,0.4,16.25,24,30,ambient,0,15
+POOJA_THALI,Navratri Pooja Thali,Pooja,Pooja Items,350,0.32,0.12,3,0.2,1.0,238,340,1095,ambient,0,1
+CAMPHOR,Camphor Pack,Pooja,Pooja Items,45,0.40,0.12,8,0.8,0.9,27,43,730,ambient,0,4
+SALT,Salt 1kg,Grocery,Salt,25,0.20,0.05,20,0.95,0.1,20.5,24,1825,ambient,0,25
+TOMATO,Tomato 1kg,Vegetables,Fresh Vegetables,35,0.30,0.05,40,1.2,0.5,22.75,33,10,ambient,0,20

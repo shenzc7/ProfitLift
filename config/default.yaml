@@ -1,0 +1,32 @@
+database:
+  path: "profitlift.db"
+
+mining:
+  min_support: 0.01
+  min_confidence: 0.3
+  min_lift: 1.1
+  algorithms: ["fpgrowth", "eclat"]  # No apriori
+
+context:
+  time_bins: ["morning", "midday", "afternoon", "evening"]
+  weekday_weekend: true
+  seasonal_quarters: true
+  store_clustering: false  # Optional stretch
+  min_rows_per_context: 100  # Auto-backoff to broader context
+
+scoring:
+  weights_file: "config/scoring.yaml"
+  diversity_scope: "within_context"  # Key: don't penalize cross-context overlap
+
+uplift:
+  method: "t_learner"  # T-Learner baseline (RandomForest)
+  dr_learner_enabled: false  # Stretch goal
+  min_incremental_lift: 0.05
+
+streaming:
+  enabled: true
+  check_interval_seconds: 300
+
+api:
+  host: "127.0.0.1"
+  port: 8000

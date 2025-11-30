@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProfitLift: The Holy-Grail Documentation</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#f4f4f5',
+                primaryTextColor: '#18181b',
+                primaryBorderColor: '#e4e4e7',
+                lineColor: '#71717a',
+                secondaryColor: '#fafafa',
+                tertiaryColor: '#ffffff',
+                fontSize: '12px'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis',
+                nodeSpacing: 30,
+                rankSpacing: 40,
+                padding: 8
+            }
+        });
+
+        // Wait for DOM and Mermaid to be ready
+        window.addEventListener('load', async () => {
+            try {
+                await mermaid.run();
+                // Add a small delay to ensure rendering is complete
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                document.body.classList.add('mermaid-ready');
+                console.log('Mermaid diagrams rendered successfully');
+            } catch (e) {
+                console.error('Mermaid rendering error:', e);
+            }
+        });
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root {
+            --bg: #ffffff;
+            --text-primary: #18181b;
+            --text-secondary: #52525b;
+            --text-muted: #a1a1aa;
+            --border: #e4e4e7;
+            --accent: #2563eb;
+            /* Soft Blue */
+            --accent-light: #eff6ff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --code-bg: #f4f4f5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        img {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            max-width: 100%;
+            height: auto;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            background: var(--bg);
+            line-height: 1.6;
+            font-size: 11pt;
+        }
+
+        /* Continuous Flow Layout */
+        .page {
+            max-width: 900px;
+            /* Readable width on screen */
+            margin: 0 auto 40px auto;
+            padding: 40px;
+            background: white;
+            position: relative;
+            box-sizing: border-box;
+            border-top: 4px solid var(--accent);
+        }
+
+        h1 {
+            font-size: 24pt;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 15px;
+            letter-spacing: -0.5px;
+        }
+
+        @media print {
+
+            /* ====== PRINT-OPTIMIZED PAGE SETUP ====== */
+            @page {
+                size: A4;
+                margin: 20mm 15mm;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body {
+                background: white !important;
+                margin: 0;
+                padding: 0;
+                font-size: 10pt;
+                line-height: 1.5;
+            }
+
+            /* ====== PAGE STRUCTURE ====== */
+            .page {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+                border: none;
+                box-shadow: none;
+                display: block;
+                page-break-after: always;
+                page-break-inside: auto;
+            }
+
+            /* CRITICAL: Each major section starts on new page */
+            .page:last-child {
+                page-break-after: avoid;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            /* ====== PREVENT BREAKING INSIDE ELEMENTS ====== */
+            img,
+            .viva-box,
+            .step-box,
+            .diagram-box,
+            .diagram-box *,
+            table,
+            .highlight-block,
+            .persona-card,
+            .code-block,
+            .screenshot-placeholder,
+            pre {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            /* ====== HEADING CONTROLS ====== */
+            h1 {
+                page-break-before: always;
+                page-break-after: avoid;
+                margin-top: 0;
+                padding-top: 20px;
+            }
+
+            h1:first-of-type {
+                page-break-before: avoid;
+            }
+
+            h2,
+            h3,
+            h4 {
+                page-break-after: avoid;
+                page-break-inside: avoid;
+                orphans: 3;
+                widows: 3;
+            }
+
+            /* Keep at least 2 lines with heading */
+            h2+p,
+            h3+p,
+            h4+p {
+                page-break-before: avoid;
+            }
+
+            /* ====== CONTROL WIDOWS & ORPHANS ====== */
+            p {
+                orphans: 3;
+                widows: 3;
+                page-break-inside: avoid;
+            }
+
+            /* ====== IMAGE & DIAGRAM SIZING ====== */
+            img {
+                max-width: 100% !important;
+                height: auto !important;
+                display: block;
+            }
+
+            .diagram-box {
+                max-width: 100%;
+                margin: 15px 0;
+                padding: 10px;
+                page-break-inside: avoid !important;
+            }
+
+            /* CRITICAL: Mermaid diagram constraints for print */
+            .diagram-box svg,
+            .mermaid svg,
+            svg[id^="mermaid-"] {
+                max-width: 90% !important;
+                max-height: 350px !important;
+                height: auto !important;
+                width: auto !important;
+                display: block !important;
+                margin: 0 auto !important;
+            }
+
+            /* Scale down oversized diagrams */
+            .mermaid {
+                max-width: 100%;
+                overflow: hidden;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 5px 0;
+            }
+
+            /* Ensure diagram text is readable */
+            .mermaid text,
+            .diagram-box text {
+                font-size: 9px !important;
+            }
+
+            /* Constrain diagram container - more aggressive scaling */
+            .diagram-box .mermaid {
+                transform: scale(0.7);
+                transform-origin: center center;
+                max-height: 400px;
+                overflow: hidden;
+            }
+
+            /* ====== TABLE HANDLING ====== */
+            table {
+                page-break-inside: avoid;
+                width: 100%;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            /* ====== COVER PAGE SPECIAL ====== */
+            .cover-container {
+                min-height: 90vh;
+                page-break-after: always;
+            }
+
+            /* ====== SPACING OPTIMIZATION ====== */
+            .highlight-block {
+                margin: 10px 0;
+                padding: 10px;
+            }
+
+            .step-box {
+                margin-bottom: 10px;
+            }
+
+            .viva-box {
+                margin-bottom: 12px;
+                padding: 12px;
+            }
+
+            /* ====== GRID LAYOUTS FOR PRINT ====== */
+            [style*="display: grid"] {
+                display: block !important;
+            }
+
+            [style*="display: flex"] {
+                display: block !important;
+            }
+
+            /* Re-enable specific layouts that work in print */
+            .step-box {
+                display: flex !important;
+            }
+
+            /* ====== CODE BLOCKS ====== */
+            .code-block {
+                font-size: 8pt;
+                overflow: visible;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+
+            pre {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                overflow: visible;
+            }
+
+            /* ====== TOC OPTIMIZATION ====== */
+            .toc-item {
+                page-break-inside: avoid;
+            }
+        }
+
+        @media screen {
+            body {
+                background: #f0f0f0;
+                padding: 40px 0;
+            }
+
+            .page {
+                margin-bottom: 40px;
+                box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 32pt;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 0.5em;
+        }
+
+        h2 {
+            font-size: 20pt;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.3em;
+        }
+
+        h3 {
+            font-size: 14pt;
+            font-weight: 600;
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            color: var(--text-primary);
+        }
+
+        h4 {
+            font-size: 11pt;
+            font-weight: 600;
+            margin-top: 1em;
+            margin-bottom: 0.3em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        p {
+            margin-bottom: 1em;
+            color: var(--text-secondary);
+            text-align: justify;
+        }
+
+        /* Components */
+        .highlight-block {
+            background: var(--accent-light);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5em 0;
+            font-size: 0.95em;
+        }
+
+        .note {
+            border-color: var(--accent);
+            background: #f0f9ff;
+        }
+
+        .tip {
+            border-color: var(--success);
+            background: #ecfdf5;
+        }
+
+        .warning {
+            border-color: var(--warning);
+            background: #fffbeb;
+        }
+
+        .code-block {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            overflow-x: auto;
+            margin: 1em 0;
+            border: 1px solid var(--border);
+        }
+
+        .diagram-box {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 2em 0;
+            text-align: center;
+            background: #fafafa;
+        }
+
+        .diagram-caption {
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .screenshot-placeholder {
+            width: 100%;
+            height: 250px;
+            background: #f4f4f5;
+            border: 2px dashed #d4d4d8;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a1a1aa;
+            margin: 1.5em 0;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            font-size: 0.9em;
+        }
+
+        .table-custom th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .table-custom td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        /* Cover Page */
+        .cover-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .cover-title {
+            font-size: 48pt;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .cover-subtitle {
+            font-size: 18pt;
+            color: var(--text-secondary);
+            margin-top: 20px;
+            font-weight: 300;
+        }
+
+        .student-details {
+            margin-bottom: 60px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            padding: 15px 0;
+            font-size: 12pt;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* ToC */
+        .toc-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px dotted var(--border);
+            padding-bottom: 2px;
+        }
+
+        .toc-page {
+            font-weight: 600;
+        }
+
+        /* Persona Card */
+        .persona-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .persona-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--code-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        /* Step Box */
+        .step-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: var(--text-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        /* Viva Question */
+        .viva-box {
+            background: #fafafa;
+            border-left: 3px solid var(--text-primary);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .viva-q {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .viva-a {
+            font-size: 0.95em;
+            color: var(--text-secondary);
+        }
+
+        .viva-tag {
+            display: inline-block;
+            font-size: 0.7em;
+            padding: 2px 6px;
+            background: #e4e4e7;
+            border-radius: 4px;
+            margin-right: 8px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Print Instructions (Screen Only) -->
+    <div class="no-print"
+        style="background: #18181b; color: white; padding: 20px; text-align: center; font-family: sans-serif; margin-bottom: 40px;">
+        <h3 style="margin-bottom: 10px;">🖨️ How to Save as PDF</h3>
+        <p style="opacity: 0.8; margin-bottom: 15px;">This document is optimized for A4 printing.</p>
+        <button onclick="window.print()"
+            style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">Print
+            / Save as PDF</button>
+        <p style="font-size: 0.8em; margin-top: 10px; opacity: 0.6;">Ensure "Background Graphics" is CHECKED in print
+            settings.</p>
+    </div>
+
+    <!-- ⭐ 1. COVER PAGE -->
+    <div class="page" style="border-top: none;">
+        <div class="cover-container">
+            <div style="margin-top: 60px;">
+                <div
+                    style="font-size: 14pt; font-weight: 600; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px;">
+                    Complete Technical Documentation</div>
+                <div class="cover-title">ProfitLift</div>
+                <div class="cover-subtitle">Context-Aware, Profit-Optimized Market Basket Analysis<br>with Causal Uplift
+                    Modeling</div>
+            </div>
+
+            <div class="student-details">
+                <div class="detail-row">
+                    <span class="detail-label">Developed By</span>
+                    <span>Shenz</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Organization</span>
+                    <span>CrystalCore</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Project Type</span>
+                    <span>Context-Aware Retail Analytics Engine</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Tech Stack</span>
+                    <span>Python FastAPI · React TypeScript · Scikit-Learn</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Version</span>
+                    <span>1.0 — November 2024</span>
+                </div>
+            </div>
+
+            <div style="text-align: center; color: var(--text-muted); font-size: 0.9em;">
+                <p>Comprehensive Technical Manual & Implementation Guide<br>for Causal Market Basket Analysis Systems
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ⭐ 2. TABLE OF CONTENTS -->
+    <div class="page">
+        <h1>Table of Contents</h1>
+        <div style="margin-top: 40px;">
+            <div class="toc-item"><span>1. Executive Summary</span> <span class="toc-page">03</span></div>
+            <div class="toc-item"><span>2. Problem Statement</span> <span class="toc-page">04</span></div>
+            <div class="toc-item"><span>3. User Personas</span> <span class="toc-page">05</span></div>
+            <div class="toc-item"><span>4. Feature Overview</span> <span class="toc-page">06</span></div>
+            <div class="toc-item"><span>5. User Workflow</span> <span class="toc-page">07</span></div>
+            <div class="toc-item"><span>6. Dataset Explanation</span> <span class="toc-page">08</span></div>
+            <div class="toc-item"><span>7. Theory Chapter (Core Logic)</span> <span class="toc-page">09</span></div>
+            <div class="toc-item"><span>8. System Architecture</span> <span class="toc-page">13</span></div>
+            <div class="toc-item"><span>9. UI Walkthrough</span> <span class="toc-page">16</span></div>
+            <div class="toc-item"><span>10. Installation & Run Guide</span> <span class="toc-page">18</span></div>
+            <div class="toc-item"><span>11. Demo Script (10 Minutes)</span> <span class="toc-page">19</span></div>
+            <div class="toc-item"><span>12. Code Logic Explanation</span> <span class="toc-page">21</span></div>
+            <div class="toc-item"><span>13. Indian Retail Scenarios</span> <span class="toc-page">23</span></div>
+            <div class="toc-item"><span>14. Limitations & Future Work</span> <span class="toc-page">24</span></div>
+            <div class="toc-item"><span>15. The Ultimate Viva Question Bank</span> <span class="toc-page">25</span>
+            </div>
+            <div class="toc-item"><span>16. Glossary</span> <span class="toc-page">32</span></div>
+            <div class="toc-item"><span>17. One-Page Revision Sheet</span> <span class="toc-page">33</span></div>
+        </div>
+    </div>
+
+    <!-- ⭐ 3. EXECUTIVE SUMMARY -->
+    <div class="page">
+        <h1>Executive Summary</h1>
+
+        <div class="highlight-block note">
+            <strong>In a Nutshell:</strong> ProfitLift is an intelligent retail analytics engine that tells store owners
+            <em>exactly</em> what products to bundle together to maximize profit, not just sales volume.
+        </div>
+
+        <p>Traditional Market Basket Analysis (MBA) has a fatal flaw: it assumes that just because two items are bought
+            together frequently, they should be promoted together. It ignores <strong>profitability</strong> (selling
+            low-margin items doesn't help) and <strong>context</strong> (buying patterns change during Diwali vs. a
+            regular Tuesday).</p>
+
+        <p><strong>ProfitLift</strong> solves this by introducing a novel "Context-Aware, Profit-Optimized" approach
+            tailored specifically for the Indian retail landscape. It doesn't just look for "Bread & Butter"; it looks
+            for "High-Margin Ghee & Premium Atta" during festival weeks.</p>
+
+        <h3>Key Innovations</h3>
+        <ul>
+            <li><strong>Context Awareness:</strong> Automatically detects Indian festivals (Diwali, Holi), weekends, and
+                time-of-day to segment buying patterns.</li>
+            <li><strong>Profit-First Scoring:</strong> Ranks associations based on a multi-objective function where
+                Profit Margin has the highest weight (40%), ensuring recommendations drive the bottom line.</li>
+            <li><strong>Causal Verification:</strong> Uses the <strong>T-Learner</strong> causal inference model to
+                distinguish between products that <em>cause</em> the purchase of another vs. those that are just bought
+                together by chance.</li>
+        </ul>
+
+        <p style="margin-top: 20px;">Built with a robust <strong>FastAPI</strong> backend and a modern
+            <strong>React</strong> frontend, ProfitLift provides an end-to-end solution from raw CSV data to actionable,
+            verified business insights.
+        </p>
+    </div>
+
+    <!-- ⭐ 4. PROBLEM STATEMENT -->
+    <div class="page">
+        <h1>Problem Statement</h1>
+
+        <h3>The Retail Complexity Gap</h3>
+        <p>Retailers today are drowning in transaction data but starving for insights. While they know <em>what</em>
+            sold, they rarely understand <em>why</em> or <em>how</em> to influence future sales effectively.</p>
+
+        <div class="diagram-box">
+            <pre style="font-family: monospace; line-height: 1.2;">
+   [ Raw Data ]       [ Traditional MBA ]       [ The Problem ]
+  +------------+     +-------------------+     +-------------------------+
+  | Transaction|     | "People buy     |     | 1. Is it profitable?  |
+  | Logs       | --> |  Milk + Bread"  | --> | 2. Is it just luck?   |
+  +------------+     +-------------------+     | 3. Does it work on    |
+                                               |    Diwali?            |
+                                               +-------------------------+
+            </pre>
+            <div class="diagram-caption">Fig 1. The limitations of traditional association rule mining</div>
+        </div>
+
+        <h3>Specific Challenges in Indian Retail</h3>
+        <ol>
+            <li><strong>Context Blindness:</strong> A customer buying sweets in October (Diwali) has a completely
+                different intent than one buying sweets in February. Standard algorithms treat these identical
+                transactions as the same.</li>
+            <li><strong>The "Frequency Trap":</strong> Algorithms like Apriori favor high-volume, low-margin items (like
+                Milk). Promoting these eats into marketing budget without significant return.</li>
+            <li><strong>Correlation ≠ Causation:</strong> Just because Coffee and Sugar are bought together doesn't mean
+                discounting Coffee will sell more Sugar. They might just be complements. We need to find <em>driver</em>
+                items.</li>
+        </ol>
+
+        <div class="diagram-box">
+            <div class="mermaid">
+                graph LR
+                A[Raw Transactions] --> B(Standard MBA)
+                B --> C{High Frequency?}
+                C -- Yes --> D[Recommend Low Margin Items]
+                C -- No --> E[Ignore High Margin Niche]
+                D --> F[Lost Profit Opportunity]
+            </div>
+            <div class="diagram-caption">Fig 2. How traditional methods fail to capture profit</div>
+        </div>
+    </div>
+
+    <!-- ⭐ 5. USER PERSONAS -->
+    <div class="page">
+        <h1>User Personas</h1>
+
+        <div class="persona-card">
+            <div class="persona-icon">🏪</div>
+            <div>
+                <h3>Rajesh, The Store Owner</h3>
+                <p><strong>Goal:</strong> Increase monthly profit by ₹50,000.</p>
+                <p><strong>Pain Point:</strong> "I run discounts but I don't know if they actually work. I have too much
+                    stock of expensive items that aren't moving."</p>
+                <p><strong>ProfitLift Solution:</strong> Gives him ready-made "Bundles" (e.g., "Sell Premium Tea with
+                    Biscuits") that are proven to work.</p>
+            </div>
+        </div>
+
+        <div class="persona-card">
+            <div class="persona-icon">📊</div>
+            <div>
+                <h3>Priya, The Business Analyst</h3>
+                <p><strong>Goal:</strong> Find deep patterns to present to management.</p>
+                <p><strong>Pain Point:</strong> "Excel crashes with this much data. I need to filter by 'Weekend
+                    Evenings' to see what sells then."</p>
+                <p><strong>ProfitLift Solution:</strong> The "Context-Aware Miner" allows her to slice data by time,
+                    day, and festival instantly.</p>
+            </div>
+        </div>
+
+        <div class="persona-card">
+            <div class="persona-icon">🎓</div>
+            <div>
+                <h3>You, The Student Presenter</h3>
+                <p><strong>Goal:</strong> Impress the external examiner with a technically sound, "cool" project.</p>
+                <p><strong>Pain Point:</strong> "I need to show I didn't just copy code. I need to explain <em>why</em>
+                    my project is better than a basic tutorial."</p>
+                <p><strong>ProfitLift Solution:</strong> The "Causal Uplift" and "Multi-Objective Scoring" provide the
+                    academic depth needed for an A+ grade.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ⭐ 6. FEATURE OVERVIEW -->
+    <div class="page">
+        <h1>Feature Overview</h1>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+            <div class="highlight-block note" style="margin: 0;">
+                <h3 style="margin-top: 0;">🕰️ Context Mining</h3>
+                <p>Segments data into "Morning", "Evening", "Weekend", and "Festival" buckets before mining.</p>
+            </div>
+            <div class="highlight-block tip" style="margin: 0;">
+                <h3 style="margin-top: 0;">💰 Profit Scoring</h3>
+                <p>Uses a weighted formula (40% Profit, 30% Lift) to rank rules. Focuses on <em>margin</em> not just
+                    <em>sales</em>.
+                </p>
+            </div>
+            <div class="highlight-block warning" style="margin: 0;">
+                <h3 style="margin-top: 0;">🧠 Causal AI</h3>
+                <p>Implements T-Learner (Random Forest) to verify if a recommendation <em>causes</em> a purchase.</p>
+            </div>
+            <div class="highlight-block note" style="margin: 0;">
+                <h3 style="margin-top: 0;">🇮🇳 India Ready</h3>
+                <p>Built-in GST slab logic (0%, 5%, 12%, 18%) and Indian Festival Calendar (Diwali, Holi).</p>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 40px;">Comparison Matrix</h3>
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Standard MBA</th>
+                    <th>ProfitLift</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Algorithm</strong></td>
+                    <td>Apriori / FP-Growth</td>
+                    <td>Context-Aware FP-Growth</td>
+                </tr>
+                <tr>
+                    <td><strong>Ranking Metric</strong></td>
+                    <td>Support & Confidence</td>
+                    <td>Profit, Lift & Diversity</td>
+                </tr>
+                <tr>
+                    <td><strong>Seasonality</strong></td>
+                    <td>Ignored</td>
+                    <td>Native Festival Detection</td>
+                </tr>
+                <tr>
+                    <td><strong>Validation</strong></td>
+                    <td>None (Correlation only)</td>
+                    <td>Causal Inference (T-Learner)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ⭐ 7. USER WORKFLOW -->
+    <div class="page">
+        <h1>User Workflow</h1>
+
+        <div class="diagram-box">
+            <div class="mermaid">
+                graph TD
+                A[User Uploads CSV] -->|Ingestion| B(Context Enrichment)
+                B -->|Add Time/Festival Tags| C[Data Store]
+                C -->|Mining Request| D{Context Miner}
+                D -->|FP-Growth| E[Raw Rules]
+                E -->|Multi-Obj Scoring| F[Ranked Rules]
+                F -->|T-Learner| G[Verified Bundles]
+                G -->|API| H[Dashboard UI]
+            </div>
+            <div class="diagram-caption">Fig 3. End-to-End Data Processing Pipeline</div>
+        </div>
+
+    </div>
+
+    <!-- ⭐ 7b. USER WORKFLOW (PART 2) -->
+    <div class="page">
+        <h3>The Story of a Transaction</h3>
+
+        <div style="margin: 1.5em 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+            <img src="docs/images/upload_page.jpg" alt="Upload Transactions Page"
+                style="width: 100%; height: auto; display: block;">
+        </div>
+        <p
+            style="text-align: center; font-size: 0.85em; color: var(--text-muted); font-style: italic; margin-top: -1em;">
+            Fig. Upload interface showing drag-and-drop CSV import with festival enrichment</p>
+
+        <div class="step-box">
+            <div class="step-number">1</div>
+            <div>
+                <strong>Upload:</strong> The store manager uploads <code>transactions.csv</code>.
+            </div>
+        </div>
+        <div class="step-box">
+            <div class="step-number">2</div>
+            <div>
+                <strong>Enrichment:</strong> The system sees a transaction on <em>Nov 12, 2023</em>. It automatically
+                tags it as <strong>"Diwali"</strong> and <strong>"Weekend"</strong>. It also looks up the items (e.g.,
+                "Ghee") and assigns a <strong>12% GST</strong> margin.
+            </div>
+        </div>
+        <div class="step-box">
+            <div class="step-number">3</div>
+            <div>
+                <strong>Mining:</strong> The miner looks for patterns <em>specifically within</em> the "Diwali" context.
+                It finds that "Sweets" and "Dry Fruits" are bought together often.
+            </div>
+        </div>
+        <div class="step-box">
+            <div class="step-number">4</div>
+            <div>
+                <strong>Scoring & Verification:</strong> The system calculates the profit. It sees this bundle has a
+                high margin. Then, the T-Learner checks: "Do people buy Dry Fruits <em>because</em> they bought Sweets?"
+                The answer is Yes.
+            </div>
+        </div>
+        <div class="step-box">
+            <div class="step-number">5</div>
+            <div>
+                <strong>Result:</strong> The Dashboard shows a "High Priority" recommendation: <strong>"Bundle Sweets +
+                    Dry Fruits for Diwali"</strong>.
+            </div>
+        </div>
+    </div>
+
+    <!-- ⭐ 8. DATASET EXPLANATION -->
+    <div class="page">
+        <h1>Dataset Explanation</h1>
+
+        <p>To make ProfitLift work, we don't need complex databases. We just need standard <strong>Retail Transaction
+                Logs</strong>. This is the same data that is printed on every receipt.</p>
+
+        <h3>1. Where does the data come from? (Source)</h3>
+        <div style="display: flex; gap: 20px; margin-bottom: 20px; align-items: center;">
+            <div style="flex: 1; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <strong>Source A: POS System</strong><br>
+                <span style="font-size: 0.9em; color: #64748b;">The computer at the checkout counter (Billing
+                    Software).</span>
+            </div>
+            <div style="font-size: 20px;">➔</div>
+            <div style="flex: 1; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <strong>Source B: Excel / CSV</strong><br>
+                <span style="font-size: 0.9em; color: #64748b;">The shopkeeper exports the daily sales report.</span>
+            </div>
+        </div>
+
+        <h3>2. Data Features (Characteristics)</h3>
+        <p>The dataset has <strong>4 Key Characteristics</strong> that define it:</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <strong>1. Transactional</strong>
+                <p style="font-size: 0.9em; color: #64748b; margin-top: 5px;">It records <em>events</em> (purchases),
+                    not just static records.</p>
+            </div>
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <strong>2. Temporal (Time-Based)</strong>
+                <p style="font-size: 0.9em; color: #64748b; margin-top: 5px;">Every row has a timestamp. This is vital
+                    for finding "Morning" or "Diwali" patterns.</p>
+            </div>
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <strong>3. Numerical</strong>
+                <p style="font-size: 0.9em; color: #64748b; margin-top: 5px;">Contains quantifiable values like Price,
+                    Quantity, and Margin.</p>
+            </div>
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <strong>4. High Volume</strong>
+                <p style="font-size: 0.9em; color: #64748b; margin-top: 5px;">Retail stores generate hundreds of rows
+                    daily.</p>
+            </div>
+        </div>
+
+        <div class="diagram-box">
+            <div class="mermaid">
+                graph LR
+                D[Dataset] --> T[Time]
+                D --> I[Item Info]
+                D --> V[Value]
+
+                T --> T1(Date: Nov 12)
+                T --> T2(Time: 6:30 PM)
+
+                I --> I1(Name: Ghee)
+                I --> I2(Category: Dairy)
+
+                V --> V1(Price: ₹550)
+                V --> V2(Qty: 1)
+            </div>
+            <div class="diagram-caption">Fig 4. The Structure of Retail Data</div>
+        </div>
+
+        <h3>3. Required Columns (The Schema)</h3>
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Column Name</th>
+                    <th>Why we need it?</th>
+                    <th>Example Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>transaction_id</code></td>
+                    <td>To group items bought <em>together</em> in one basket.</td>
+                    <td><code>TXN_1001</code></td>
+                </tr>
+                <tr>
+                    <td><code>timestamp</code></td>
+                    <td><strong>Crucial!</strong> To know if it's Morning, Weekend, or Diwali.</td>
+                    <td><code>2023-11-12 18:30</code></td>
+                </tr>
+                <tr>
+                    <td><code>item_id</code></td>
+                    <td>The product name.</td>
+                    <td><code>Amul Ghee 1L</code></td>
+                </tr>
+                <tr>
+                    <td><code>price</code></td>
+                    <td>To calculate Revenue and Profit.</td>
+                    <td><code>₹ 550.00</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>4. The "Upload & Forget" Feature</h3>
+        <div class="highlight-block tip">
+            <h4 style="margin-top: 0; color: #0f766e;">"I have the data, but the columns are wrong!"</h4>
+            <p><strong>The Problem:</strong> Shopkeepers are not data scientists. Their Excel files might say "Bill
+                Date" instead of "timestamp" or "Product" instead of "item_id".</p>
+            <p><strong>The Solution (Smart Mapping):</strong> ProfitLift's ingestion engine is intelligent. It scans the
+                uploaded file headers and automatically maps them:</p>
+            <ul style="margin-top: 10px; font-size: 0.9em;">
+                <li>"Bill Date", "Date", "Time" ➔ Mapped to <strong>timestamp</strong></li>
+                <li>"Product Name", "Item", "Desc" ➔ Mapped to <strong>item_id</strong></li>
+                <li>"Amount", "Rate", "MRP" ➔ Mapped to <strong>price</strong></li>
+            </ul>
+            <p style="margin-top: 10px;"><strong>Result:</strong> The user just drags and drops the file. The system
+                handles the rest.</p>
+        </div>
+
+        <h3>5. Data Distribution Graph</h3>
+        <p>A visual representation of how a typical store's data looks:</p>
+        <div style="margin-top: 15px; font-family: monospace; font-size: 0.85em;">
+            <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                <span style="width: 100px;">Groceries</span>
+                <div style="width: 60%; background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden;">
+                    <div style="width: 75%; background: var(--accent); height: 100%;"></div>
+                </div>
+                <span style="margin-left: 10px;">75% (High Vol, Low Margin)</span>
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                <span style="width: 100px;">Luxury/Gifts</span>
+                <div style="width: 60%; background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden;">
+                    <div style="width: 15%; background: var(--accent); height: 100%;"></div>
+                </div>
+                <span style="margin-left: 10px;">15% (The Profit Drivers!)</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <span style="width: 100px;">Essentials</span>
+                <div style="width: 60%; background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden;">
+                    <div style="width: 10%; background: var(--accent); height: 100%;"></div>
+                </div>
+                <span style="margin-left: 10px;">10% (Fillers)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ⭐ 9. THEORY CHAPTER -->
+    <div class="page">
+        <h1>Theory & Algorithms</h1>
+
+        <h2>1. FP-Growth (Frequent Pattern Growth)</h2>
+        <p><strong>The Concept:</strong> Instead of generating millions of candidate sets like Apriori (which is slow),
+            FP-Growth builds a compact tree structure (FP-Tree) that compresses the database. It then mines this tree
+            recursively.</p>
+
+        <div class="diagram-box">
+            <div class="mermaid">
+                graph TD
+                Root((Null)) --> A((Milk: 5))
+                A --> B((Bread: 3))
+                A --> C((Eggs: 2))
+                B --> D((Butter: 2))
+            </div>
+            <div class="diagram-caption">Fig 4. Simplified FP-Tree Structure</div>
+        </div>
+        <p><strong>Why we use it:</strong> It is significantly faster and more memory-efficient for large datasets,
+            which is crucial when we are splitting data into many context segments.</p>
+
+        <h2>2. Association Metrics</h2>
+        <ul>
+            <li><strong>Support:</strong> How popular is an itemset?
+                <br><code>Support(A) = Transactions(A) / Total Transactions</code>
+            </li>
+            <li><strong>Confidence:</strong> How likely is B purchased when A is purchased?
+                <br><code>Conf(A->B) = Support(A,B) / Support(A)</code>
+            </li>
+            <li><strong>Lift:</strong> Is the relationship stronger than random chance?
+                <br><code>Lift(A->B) = Conf(A->B) / Support(B)</code>
+            </li>
+        </ul>
+
+        <h2>3. Multi-Objective Scoring</h2>
+        <p>We don't just want frequent rules; we want <em>good</em> rules. We calculate a composite score:</p>
+        <div class="code-block">
+            Score = (0.4 * Norm_Profit) + (0.3 * Norm_Lift) + (0.15 * Diversity) + (0.15 * Conf)
+        </div>
+        <p><strong>Normalization:</strong> Since Profit (e.g., ₹500) and Lift (e.g., 2.5) have different scales, we
+            normalize them to a 0-1 range <em>within each context</em> before combining.</p>
+
+    </div>
+
+    <!-- ⭐ 9b. THEORY (PART 2) -->
+    <div class="page">
+        <h2>4. Causal Uplift (T-Learner)</h2>
+        <p><strong>The Problem:</strong> "People who buy Diapers also buy Beer." Is this because Diapers <em>cause</em>
+            Beer purchases (stress relief?), or just because men buy both on Friday nights?</p>
+        <p><strong>The Solution:</strong> The T-Learner trains two models:</p>
+        <ul>
+            <li><strong>Model 0 (Control):</strong> Predicts purchase probability of B <em>without</em> A.</li>
+            <li><strong>Model 1 (Treatment):</strong> Predicts purchase probability of B <em>with</em> A.</li>
+        </ul>
+        <p><strong>Uplift = P(Buy B | With A) - P(Buy B | Without A)</strong></p>
+        <p>If Uplift is close to 0, the rule is just a correlation. If Uplift is high, A is a true driver for B.</p>
+
+        <div style="margin: 1.5em 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+            <img src="docs/images/causal_analysis.jpg" alt="Causal Analysis T-Learner Results"
+                style="width: 100%; height: auto; display: block;">
+        </div>
+        <p
+            style="text-align: center; font-size: 0.85em; color: var(--text-muted); font-style: italic; margin-top: -1em;">
+            Fig. Real T-Learner output showing Control (56%) vs Treatment (68%) with +12% causal uplift</p>
+
+    </div>
+
+    <!-- ⭐ 10. SYSTEM ARCHITECTURE -->
+    <div class="page">
+        <h1>System Architecture</h1>
+
+        <div class="diagram-box">
+            <div class="mermaid">
+                graph TB
+                subgraph Frontend [React Frontend]
+                UI[Dashboard UI]
+                Viz[Recharts Viz]
+                end
+
+                subgraph Backend [FastAPI Server]
+                API[API Routes]
+                Svc[Analytics Service]
+
+                subgraph Core [Core Logic]
+                Miner[Context Miner]
+                Scorer[Multi-Obj Scorer]
+                Causal[T-Learner]
+                end
+
+                subgraph Data [Data Layer]
+                Ingest[CSV Ingest]
+                Enrich[Context Enricher]
+                DB[(SQLite / Pandas)]
+                end
+                end
+
+                UI <--> API
+                    API --> Svc
+                    Svc --> Ingest
+                    Ingest --> Enrich
+                    Enrich --> DB
+                    Svc --> Miner
+                    Miner --> DB
+                    Miner --> Scorer
+                    Scorer --> Causal
+            </div>
+            <div class="diagram-caption">Fig 5. High-Level System Architecture</div>
+        </div>
+
+    </div>
+
+    <!-- ⭐ 8b. SYSTEM ARCHITECTURE (PART 2) -->
+    <div class="page">
+        <h3>Code Map</h3>
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Directory</th>
+                    <th>Key Files</th>
+                    <th>Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>app/api</code></td>
+                    <td><code>main.py</code>, <code>routes.py</code></td>
+                    <td>Entry point, REST endpoints</td>
+                </tr>
+                <tr>
+                    <td><code>app/ingest</code></td>
+                    <td><code>context_enricher.py</code>, <code>india_calendar.py</code></td>
+                    <td>Data cleaning, Festival tagging, GST logic</td>
+                </tr>
+                <tr>
+                    <td><code>app/mining</code></td>
+                    <td><code>fpgrowth.py</code>, <code>context_aware_miner.py</code></td>
+                    <td>Core FP-Growth algorithm and segmentation</td>
+                </tr>
+                <tr>
+                    <td><code>app/score</code></td>
+                    <td><code>multi_objective.py</code>, <code>profit_calculator.py</code></td>
+                    <td>Ranking logic and margin math</td>
+                </tr>
+                <tr>
+                    <td><code>app/causal</code></td>
+                    <td><code>t_learner.py</code></td>
+                    <td>Causal inference implementation</td>
+                </tr>
+                <tr>
+                    <td><code>app/frontend</code></td>
+                    <td><code>Dashboard.tsx</code>, <code>Recommendations.tsx</code></td>
+                    <td>User Interface components</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ⭐ 11. UI WALKTHROUGH -->
+    <div class="page">
+        <h1>UI Walkthrough</h1>
+
+        <h3>1. The Dashboard</h3>
+        <p>The command center of ProfitLift. It shows high-level metrics and system health.</p>
+        <div style="margin: 1.5em 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+            <img src="docs/images/dashboard.jpg" alt="Dashboard with Stats Cards and Greeting"
+                style="width: 100%; height: auto; display: block;">
+        </div>
+        <p><strong>Key Elements:</strong></p>
+        <ul>
+            <li><strong>Live Indicator:</strong> Shows if the backend is connected.</li>
+            <li><strong>Stats Grid:</strong> "Avg Lift" indicates pattern strength. "Profit Opportunity" is the
+                estimated money on the table.</li>
+            <li><strong>Top Opportunities:</strong> A ranked list of the best bundles found so far.</li>
+        </ul>
+
+    </div>
+
+    <!-- ⭐ 9b. UI WALKTHROUGH (PART 2) -->
+    <div class="page">
+        <h3>2. Recommendations Engine</h3>
+        <p>The core actionable view. This is where the user sees "What to bundle".</p>
+        <div style="margin: 1.5em 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+            <img src="docs/images/recommendations.jpg" alt="Recommendations List with Tags"
+                style="width: 100%; height: auto; display: block;">
+        </div>
+        <p><strong>How to Read a Card:</strong></p>
+        <ul>
+            <li><strong>Items:</strong> "Atta + Ghee" (The bundle).</li>
+            <li><strong>Context Tag:</strong> "Weekday Morning" (When to promote it).</li>
+            <li><strong>Verified Badge:</strong> Green checkmark means T-Learner confirmed it.</li>
+            <li><strong>Profit Value:</strong> "+₹28" (Extra profit per sale).</li>
+        </ul>
+    </div>
+
+    <!-- ⭐ 12. INSTALLATION & RUN GUIDE -->
+    <div class="page">
+        <h1>Installation & Run Guide</h1>
+
+        <h3>Prerequisites</h3>
+        <ul>
+            <li>Python 3.10+</li>
+            <li>Node.js 18+</li>
+        </ul>
+
+        <h3>Step 1: Backend Setup</h3>
+        <div class="code-block">
+            # Create virtual environment<br>
+            python -m venv venv<br>
+            source venv/bin/activate # or venv\Scripts\activate on Windows<br><br>
+            # Install dependencies<br>
+            pip install -r requirements.txt<br><br>
+            # Run Server<br>
+            python server.py
+        </div>
+
+        <h3>Step 2: Frontend Setup</h3>
+        <div class="code-block">
+            cd app/frontend<br>
+            npm install<br>
+            npm run dev
+        </div>
+
+        <h3>Step 3: Accessing the App</h3>
+        <p>Open your browser and navigate to <code>http://localhost:5173</code>.</p>
+
+        <div class="highlight-block tip">
+            <strong>Demo Mode:</strong> If you don't have a dataset, the frontend has a built-in "Demo Mode" that
+            simulates a live environment with realistic Indian retail data.
+        </div>
+    </div>
+
+    <!-- ⭐ 13. DEMO SCRIPT -->
+    <div class="page">
+        <h1>Demo Script (10 Minutes)</h1>
+
+        <p><strong>Scene:</strong> You are presenting to the external examiner and internal guide.</p>
+
+        <h3>0:00 - 2:00: The Hook (Problem)</h3>
+        <p><strong>You:</strong> "Good morning. We all know that stores like D-Mart or BigBasket use algorithms to
+            recommend products. But traditional algorithms have a flaw: they recommend what is <em>popular</em>, not
+            what is <em>profitable</em>. They might tell you to bundle Milk and Bread, which has a margin of only ₹2. My
+            project, ProfitLift, changes this."</p>
+
+        <h3>2:00 - 4:00: The Solution (Architecture)</h3>
+        <p><strong>You:</strong> "ProfitLift is a context-aware system. It doesn't just look at the transaction; it
+            looks at the <em>time</em> and <em>festival</em> context. I've implemented a custom 'Context Enricher' that
+            detects Indian festivals like Diwali. I then use a Multi-Objective Scorer that weights Profit Margin at 40%,
+            ensuring we prioritize money over volume."</p>
+
+        <h3>4:00 - 7:00: The Live Demo</h3>
+        <p><em>(Action: Open Dashboard)</em></p>
+        <p><strong>You:</strong> "Here is the live dashboard. You can see the 'Profit Opportunity' metric. Let's go to
+            the Recommendations page."</p>
+        <p><em>(Action: Click Recommendations)</em></p>
+        <p><strong>You:</strong> "Look at this rule: 'Sweets -> Dry Fruits'. Notice the tag 'Diwali'. The system learned
+            that this pattern <em>only</em> exists during the festival week. A standard algorithm would have missed this
+            because it averages data over the whole year."</p>
+        <p><strong>You:</strong> "Also, see this green 'Verified' badge? That's the T-Learner causal model confirming
+            that this isn't just a coincidence."</p>
+
+        <h3>7:00 - 10:00: Conclusion & Q&A</h3>
+        <p><strong>You:</strong> "In conclusion, ProfitLift moves MBA from 'Statistical Correlation' to 'Causal
+            Profitability', making it a viable tool for modern Indian retail."</p>
+    </div>
+
+    <!-- ⭐ 14. CODE LOGIC EXPLANATION -->
+    <div class="page">
+        <h1>Code Logic Deep Dive</h1>
+
+        <h3>How the "Context Enricher" Works</h3>
+        <p>File: <code>app/ingest/india_calendar.py</code></p>
+        <p>This module contains a hardcoded dictionary of festival windows (start/end dates). When a date comes in, it
+            checks:</p>
+        <div class="code-block">
+            def get_festival_period(date):<br>
+            &nbsp;&nbsp;if date in DIWALI_WINDOW: return "diwali"<br>
+            &nbsp;&nbsp;if date in HOLI_WINDOW: return "holi"<br>
+            &nbsp;&nbsp;return None
+        </div>
+        <p>This simple logic is powerful because it allows the miner to group "Diwali Transactions" separately from
+            "Normal Transactions".</p>
+
+        <h3>How the "Multi-Objective Scorer" Works</h3>
+        <p>File: <code>app/score/multi_objective.py</code></p>
+        <p>The scorer takes a list of rules and applies this formula:</p>
+        <ol>
+            <li>Calculate <strong>Profit</strong>: <code>Avg_Price * Margin% * Confidence</code></li>
+            <li>Calculate <strong>Diversity</strong>: Penalize rules that recommend the same item repeatedly.</li>
+            <li><strong>Normalize</strong>: Scale all values to 0-1.</li>
+            <li><strong>Weighted Sum</strong>: Combine them using the weights defined in config.</li>
+        </ol>
+    </div>
+
+    <!-- ⭐ 15. INDIAN RETAIL SCENARIOS -->
+    <div class="page">
+        <h1>Indian Retail Scenarios</h1>
+
+        <h3>Scenario 1: The Kirana Store</h3>
+        <p><strong>Challenge:</strong> Small data volume (500 transactions/month). High reliance on personal
+            relationships.</p>
+        <p><strong>ProfitLift Adaptation:</strong> Switches to "Compact Mode". Reduces context depth (ignores
+            time-of-day, only uses Weekday/Weekend) to ensure enough data points for statistical significance.</p>
+
+        <h3>Scenario 2: The Festival Rush (Diwali)</h3>
+        <p><strong>Challenge:</strong> Buying patterns flip completely. People buy expensive Gift Packs instead of daily
+            staples.</p>
+        <p><strong>ProfitLift Adaptation:</strong> The "Context Enricher" tags these weeks. The miner finds rules like
+            <em>"Sweets -> Gift Wrap"</em> which never appear during the rest of the year.
+        </p>
+
+        <h3>Scenario 3: GST Complexity</h3>
+        <p><strong>Challenge:</strong> Margins vary wildly due to tax slabs (0% on loose Atta vs 18% on branded
+            Biscuits).</p>
+        <p><strong>ProfitLift Adaptation:</strong> The <code>calculate_margin_indian</code> function reverse-calculates
+            the net selling price from MRP using the category's GST rate, ensuring the "Profit Score" reflects the
+            <em>real</em> money the shopkeeper keeps.
+        </p>
+    </div>
+
+    <!-- ⭐ 16. LIMITATIONS & FUTURE WORK -->
+    <div class="page">
+        <h1>Limitations & Future Work</h1>
+
+        <h3>Limitations</h3>
+        <ul>
+            <li><strong>Data Cold Start:</strong> The system needs at least a few weeks of data to start finding
+                meaningful time-based patterns.</li>
+            <li><strong>Fixed Calendar:</strong> Currently, festival dates are hardcoded for 2023. A future update
+                should fetch dynamic lunar calendar dates.</li>
+            <li><strong>Inventory Blindness:</strong> The system recommends bundles but doesn't check if the item is
+                actually in stock.</li>
+        </ul>
+
+        <h3>Future Work</h3>
+        <ul>
+            <li><strong>Dynamic Pricing:</strong> Suggesting optimal bundle prices, not just items.</li>
+            <li><strong>User Feedback Loop:</strong> Allowing store owners to "Reject" rules, teaching the system their
+                preferences.</li>
+            <li><strong>Cloud Integration:</strong> Moving from local SQLite to a cloud DB for multi-store chains.</li>
+        </ul>
+    </div>
+
+    <!-- ⭐ 17. VIVA QUESTION BANK -->
+    <div class="page">
+        <h1>The Ultimate Viva Question Bank</h1>
+
+        <h2>Rapid Fire (Basics)</h2>
+
+        <div class="viva-box">
+            <div class="viva-q">Q: What is the main algorithm used?</div>
+            <div class="viva-a">A: FP-Growth (Frequent Pattern Growth) for mining, and T-Learner for causal
+                verification.</div>
+        </div>
+
+        <div class="viva-box">
+            <div class="viva-q">Q: Why FP-Growth and not Apriori?</div>
+            <div class="viva-a">A: FP-Growth is faster because it scans the database only twice and uses a tree
+                structure, whereas Apriori scans it multiple times for each candidate size.</div>
+        </div>
+
+        <div class="viva-box">
+            <div class="viva-q">Q: What is "Lift"?</div>
+            <div class="viva-a">A: Lift measures how much more likely items are bought together compared to random
+                chance. Lift > 1 means a positive association.</div>
+        </div>
+
+        <h2>Technical & Architecture</h2>
+
+        <div class="viva-box">
+            <div class="viva-q">Q: How do you handle the "Context"?</div>
+            <div class="viva-a">A: I pre-process the data to add columns like 'time_bin' and 'festival'. Then, I
+                partition the dataset based on these columns and run the mining algorithm on each partition
+                independently.</div>
+        </div>
+
+        <div class="viva-box">
+            <div class="viva-q">Q: Explain the T-Learner simply.</div>
+            <div class="viva-a">A: It's a "Two-Model" learner. One model learns customer behavior <em>without</em> the
+                trigger item (Control), and the other learns behavior <em>with</em> the trigger item (Treatment). The
+                difference in their predictions is the "Uplift" or causal effect.</div>
+        </div>
+
+        <h2>Professor Challenges (Tricky)</h2>
+
+        <div class="viva-box">
+            <div class="viva-q">Q: If I buy Milk, I almost always buy Bread. But your system didn't recommend it. Why?
+            </div>
+            <div class="viva-a">A: That's likely because of the <strong>Profit Score</strong>. Milk and Bread are high
+                frequency but very low margin. My system prioritizes bundles that make <em>money</em>, so it might have
+                ranked "Milk -> Premium Cookies" higher because of the better margin, even if the frequency is slightly
+                lower.</div>
+        </div>
+
+        <div class="viva-box">
+            <div class="viva-q">Q: How does your system handle GST?</div>
+            <div class="viva-a">A: I have a utility function that maps categories to GST slabs (e.g., 5%, 12%). It
+                calculates the Net Selling Price by removing the GST component from the MRP before calculating the
+                profit margin.</div>
+        </div>
+    </div>
+
+    <!-- ⭐ 18. GLOSSARY -->
+    <div class="page">
+        <h1>Glossary</h1>
+
+        <dl style="display: grid; grid-template-columns: 1fr 3fr; gap: 20px; row-gap: 30px;">
+            <dt><strong>Antecedent</strong></dt>
+            <dd>The "IF" part of a rule. The item that triggers the recommendation (e.g., "Bread" in Bread->Butter).
+            </dd>
+
+            <dt><strong>Consequent</strong></dt>
+            <dd>The "THEN" part of a rule. The item being recommended.</dd>
+
+            <dt><strong>Support</strong></dt>
+            <dd>The percentage of total transactions that contain a specific itemset.</dd>
+
+            <dt><strong>Confidence</strong></dt>
+            <dd>The probability that the Consequent is purchased given that the Antecedent is purchased.</dd>
+
+            <dt><strong>Uplift</strong></dt>
+            <dd>The increase in probability of purchase caused solely by the presence of the Antecedent, excluding
+                random correlation.</dd>
+
+            <dt><strong>Context</strong></dt>
+            <dd>The situational factors surrounding a transaction, such as time of day, day of week, or festival season.
+            </dd>
+        </dl>
+    </div>
+
+    <!-- ⭐ 19. REVISION SHEET -->
+    <div class="page">
+        <h1>One-Page Revision Sheet</h1>
+
+        <div style="border: 2px solid var(--text-primary); padding: 20px; border-radius: 12px;">
+            <h3 style="margin-top: 0; text-align: center; text-transform: uppercase;">ProfitLift at a Glance</h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                <div>
+                    <h4>Core Goal</h4>
+                    <p>To replace "Frequency-based" recommendations with "Profit-based" and "Causal-verified"
+                        recommendations.</p>
+
+                    <h4>Tech Stack</h4>
+                    <p><strong>Backend:</strong> Python, FastAPI, Pandas, Scikit-Learn<br>
+                        <strong>Frontend:</strong> React, TypeScript, Tailwind, Recharts
+                    </p>
+                </div>
+                <div>
+                    <h4>Key Algorithms</h4>
+                    <p>1. <strong>FP-Growth:</strong> For fast frequent pattern mining.<br>
+                        2. <strong>T-Learner:</strong> For causal inference (Uplift modeling).<br>
+                        3. <strong>Multi-Objective Sort:</strong> For ranking rules.</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border);">
+                <h4>The "Golden Sentence" for Viva</h4>
+                <p style="font-size: 1.1em; font-weight: 600; color: var(--accent); text-align: center;">
+                    "My project improves upon traditional Market Basket Analysis by incorporating Contextual
+                    Segmentation to handle seasonality, and Causal Inference to distinguish between true purchase
+                    drivers and mere statistical coincidences, all optimized for maximum profitability."
+                </p>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

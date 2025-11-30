@@ -1,0 +1,12 @@
+weights:
+  lift: 0.30
+  profit_margin: 0.40
+  diversity: 0.15
+  confidence: 0.15
+
+profit:
+  default_margin_pct: 0.25
+  category_margins:
+    Dairy: 0.30
+    Produce: 0.40
+    Meat: 0.20
