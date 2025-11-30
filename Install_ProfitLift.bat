@@ -15,3 +15,4 @@ echo.
 echo Installation complete! Look for the ProfitLift icon on your desktop.
 echo Press any key to exit...
 pause >nul
+
