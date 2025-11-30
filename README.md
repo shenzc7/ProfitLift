@@ -4,6 +4,12 @@
 
 ProfitLift helps retailers discover product associations that actually drive profit — not just the most frequent patterns. Built for Indian retail with festival awareness and GST-linked margins.
 
+> **🎯 Windows Users:** Copy-paste this **one command** to install everything:
+> ```powershell
+> powershell -ExecutionPolicy Bypass -c "irm https://raw.githubusercontent.com/shenzc7/ProfitLift/main/scripts/windows/oneclick_setup.ps1 | iex"
+> ```
+> Creates a desktop icon - just double-click to launch! ✨
+
 ---
 
 ## Key Features
@@ -17,105 +23,100 @@ ProfitLift helps retailers discover product associations that actually drive pro
 
 ---
 
-## Quick Start
+## 🚀 One-Command Windows Install
 
-### 1. Install
-```bash
-pip install -r requirements.txt
+**Copy-paste this single command in PowerShell (admin recommended):**
+
+```powershell
+powershell -ExecutionPolicy Bypass -c "irm https://raw.githubusercontent.com/shenzc7/ProfitLift/main/scripts/windows/oneclick_setup.ps1 | iex"
 ```
 
-### 2. Run Backend
-```bash
-uvicorn app.api.main:app --reload
-```
+**What it does:**
+- ✅ Installs Git, Python 3.11, Node.js LTS, Rust, Visual Studio Build Tools
+- ✅ Clones ProfitLift repository
+- ✅ Creates virtual environment & installs dependencies
+- ✅ Builds Tauri desktop app + packages backend
+- ✅ **Creates desktop icon** - just double-click to launch!
 
-### 3. Run Frontend
-```bash
-cd app/frontend
-npm install
-npm run dev
-```
+**That's it!** One command → desktop icon → done. Works on any Windows machine.
 
-### 4. Upload Sample Data
-- Open `http://localhost:5173`
-- Go to **Upload** page
-- Drop `data/sample/india_sample.csv`
+---
 
-### 5. Explore
-- **Bundle Recommendations**: Ready-to-launch product bundles
-- **Pattern Explorer**: All association rules with filters
-- **What-If Simulator**: Test promotion scenarios
+## Quick Start (After Install)
+
+1. **Double-click the "ProfitLift" icon** on your desktop
+2. Upload sample data: `data/sample/india_sample.csv`
+3. Explore bundle recommendations & insights!
+
+---
+
+## What You'll Get
+
+| Feature | Description |
+|---------|-------------|
+| **Context-Aware Mining** | Patterns by time-of-day, weekday/weekend, festivals |
+| **Profit-First Scoring** | Ranks by margin contribution, not just frequency |
+| **Causal Uplift** | T-Learner estimates true incremental sales |
+| **India-Optimized** | GST-aware margins, festival calendar |
 
 ---
 
 ## Screenshots
 
 ### Bundle Recommendations
-Shows top product bundles with profit impact and causal verification.
+Top product bundles with profit impact and causal verification.
 
 ### Pattern Explorer
 Filter by mode (Quick Insights / Balanced / Discovery) or advanced parameters.
 
 ### Festival Context
-Automatically detects Diwali, Holi, and other Indian festivals in transaction data.
+Automatically detects Diwali, Holi, and other Indian festivals.
 
 ---
 
-## One-Command Windows Install (Clone + Desktop Icon)
+## 📚 Documentation
 
-```powershell
-$repo = "https://github.com/nonshenz007/ProfitLift.git"
-powershell -ExecutionPolicy Bypass -File scripts/windows/oneclick_setup.ps1 -RepoUrl $repo
+- **[USER_MANUAL.md](docs/USER_MANUAL.md)** - Complete user guide
+- **[METHODS.md](docs/METHODS.md)** - Technical methodology & algorithms
+- **[DATA_FORMAT.md](docs/DATA_FORMAT.md)** - CSV format specification
+- **[PRESENTATION_SUMMARY.md](docs/PRESENTATION_SUMMARY.md)** - 5-minute demo guide
+
+---
+
+## 🛠️ Manual Setup (Advanced Users)
+
+For developers who prefer manual setup:
+
+### Prerequisites
+- Python 3.11+, Node.js 18+, Rust stable
+- Visual Studio Build Tools (for Tauri desktop app)
+
+### Quick Manual Install
+```bash
+# Backend
+pip install -r requirements.txt
+uvicorn app.api.main:app --reload
+
+# Frontend (new terminal)
+cd app/frontend
+npm install
+npm run dev
+
+# Then open http://localhost:5173
 ```
 
-What this does:
-- Uses winget to install Git, Python 3.11, Node.js LTS, Rust (MSVC), and Visual Studio Build Tools (for Tauri).
-- Clones the repo to `%USERPROFILE%\ProfitLift` (or pulls latest if already there).
-- Creates a Python virtualenv, installs backend deps, builds the Tauri desktop bundle, and packages the FastAPI backend with PyInstaller.
-- Drops a **ProfitLift** icon on your Windows desktop that starts backend + desktop UI together (`scripts/windows/launch_profitlift.ps1`).
-
-Run straight from GitHub (no initial clone):
+### Full Desktop Build (Advanced)
 ```powershell
-powershell -ExecutionPolicy Bypass -c "irm https://raw.githubusercontent.com/nonshenz007/ProfitLift/main/scripts/windows/oneclick_setup.ps1 | iex"
+# Backend packaging
+pyinstaller ProfitLift.spec
+
+# Desktop app build
+cd app/frontend
+npm install
+npm run tauri build
 ```
-> Winget needs admin to install build tools; if prompted, approve once.
 
----
-
-## Documentation
-
-| Doc | Description |
-|-----|-------------|
-| [METHODS.md](docs/METHODS.md) | Technical methodology (algorithms, scoring) |
-| [PRESENTATION_SUMMARY.md](docs/PRESENTATION_SUMMARY.md) | 5-minute presentation guide |
-| [DATA_FORMAT.md](docs/DATA_FORMAT.md) | CSV format specification |
-| [USER_MANUAL.md](docs/USER_MANUAL.md) | End-user guide |
-
----
-
-## Windows Setup & Build (Backend + Desktop)
-
-1. **Prereqs**: Python 3.11+, Node 18+, Rust stable, and *Visual Studio Build Tools* (Desktop development with C++) for Tauri.
-2. **Backend (FastAPI)**:
-   ```powershell
-   python -m venv .venv
-   .\.venv\Scripts\activate
-   pip install -r requirements.txt
-   uvicorn app.api.main:app --host 0.0.0.0 --port 8000
-   ```
-3. **Desktop app (Tauri)**:
-   ```powershell
-   cd app/frontend
-   npm install
-   set VITE_API_URL=http://localhost:8000
-   npm run tauri build   # Produces Windows exe/MSI in src-tauri/target/release/bundle
-   ```
-4. **Backend EXE (optional)**:
-   ```powershell
-   .\.venv\Scripts\activate
-   pyinstaller ProfitLift.spec
-   ```
-   Use `installer.iss` with Inno Setup if you want a Windows installer that bundles the backend assets/config.
+**Note:** The one-command installer above handles all of this automatically!
 
 ---
 
