@@ -32,11 +32,17 @@ function Ensure-Admin {
     Write-Step "Requesting administrator privileges for installs (UAC prompt)..."
 
     # Always relaunch from canonical remote URL (avoids $MyInvocation.Path issues when invoked via iex).
-    $oneLiner = "`${env:PROFITLIFT_ELEVATED}='1'; irm https://raw.githubusercontent.com/shenzc7/ProfitLift/main/scripts/windows/oneclick_setup.ps1 | iex"
-    $argList = "-NoProfile -ExecutionPolicy Bypass -Command `"$oneLiner`""
-    Start-Process -FilePath "powershell.exe" -Verb RunAs -ArgumentList $argList
+    $oneLiner = "`$env:PROFITLIFT_ELEVATED='1'; irm 'https://raw.githubusercontent.com/shenzc7/ProfitLift/main/scripts/windows/oneclick_setup.ps1' | iex"
+    Start-Process -FilePath "powershell.exe" -Verb RunAs -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", $oneLiner)
 
     exit
+}
+
+function Refresh-EnvPath {
+    # Ensure we pick up PATH updates that winget writes to the registry.
+    $machine = [Environment]::GetEnvironmentVariable("Path", "Machine")
+    $user = [Environment]::GetEnvironmentVariable("Path", "User")
+    $env:Path = "$machine;$user"
 }
 
 function Assert-Winget {
@@ -331,6 +337,7 @@ try {
     Write-Step "Installing prerequisites with winget (idempotent)"
     Write-Info "This step may take several minutes (Visual Studio Build Tools download is ~2 GB)."
     Ensure-Prereqs
+    Refresh-EnvPath
 
     $tools = Preflight-Checks
     $repoRoot = Resolve-RepoRoot
