@@ -11,6 +11,9 @@ $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 Set-StrictMode -Version Latest
 
+# Ensure this process ignores system execution policy (needed for npm.ps1 wrappers).
+try { Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force } catch {}
+
 # Marker to avoid re-requesting elevation in child process.
 if (-not $env:PROFITLIFT_ELEVATED) { $env:PROFITLIFT_ELEVATED = "" }
 
@@ -92,6 +95,15 @@ function Require-Command {
     return $cmd.Source
 }
 
+function Normalize-NpmPath {
+    param([string]$Path)
+    if ($Path -and ($Path.ToLower().EndsWith("npm.ps1"))) {
+        $cmd = [System.IO.Path]::ChangeExtension($Path, ".cmd")
+        if (Test-Path $cmd) { return $cmd }
+    }
+    return $Path
+}
+
 function Install-WingetPackage {
     param(
         [string]$Id,
@@ -142,7 +154,7 @@ function Preflight-Checks {
     }
 
     $nodePath = Require-Command -Name "node" -MinimumVersion "18.0"
-    $npmPath = Require-Command -Name "npm" -MinimumVersion "9.0"
+    $npmPath = Normalize-NpmPath (Require-Command -Name "npm" -MinimumVersion "9.0")
     Require-Command -Name "git" -MinimumVersion "2.30" | Out-Null
     Require-Command -Name "rustc" -MinimumVersion "1.72" | Out-Null
     Require-Command -Name "cargo" -MinimumVersion "1.72" | Out-Null
@@ -241,8 +253,9 @@ function Build-Frontend {
         if (-not $npmCmd) {
             throw "npm not found on PATH. Restart PowerShell so winget additions take effect, then rerun."
         }
-        $NpmExe = $npmCmd.Source
+        $NpmExe = Normalize-NpmPath $npmCmd.Source
     }
+    $NpmExe = Normalize-NpmPath $NpmExe
 
     Write-Step "Installing frontend dependencies ..."
     pushd $frontendDir
