@@ -67,8 +67,42 @@ type BundleResponse = {
     };
 };
 
-const formatCurrency = (value: number) =>
-    isNaN(value) ? '-' : value >= 10000000 ? `₹${(value / 10000000).toFixed(1)}Cr` : value >= 100000 ? `₹${(value / 100000).toFixed(1)}L` : `₹${value.toLocaleString()}`;
+const safeNumber = (value: unknown): number | undefined => {
+    const num = typeof value === 'number'
+        ? value
+        : typeof value === 'string'
+            ? Number(value)
+            : NaN;
+    return Number.isFinite(num) ? num : undefined;
+};
+
+const formatCurrency = (value: unknown) => {
+    const num = safeNumber(value);
+    if (num === undefined) return '-';
+    return num >= 10000000
+        ? `₹${(num / 10000000).toFixed(1)}Cr`
+        : num >= 100000
+            ? `₹${(num / 100000).toFixed(1)}L`
+            : `₹${num.toLocaleString()}`;
+};
+
+const formatNumber = (value: unknown, digits = 2) => {
+    const num = safeNumber(value);
+    return num === undefined ? '-' : num.toFixed(digits);
+};
+
+const formatPercent = (value: unknown, digits = 0) => {
+    const num = safeNumber(value);
+    return num === undefined ? '-' : `${(num * 100).toFixed(digits)}%`;
+};
+
+const formatLift = (value: unknown) => {
+    const num = safeNumber(value);
+    return num === undefined ? '-' : `${num.toFixed(2)}×`;
+};
+
+const formatList = (items?: string[]) =>
+    Array.isArray(items) && items.length > 0 ? items.join(' + ') : 'N/A';
 
 export function Recommendations() {
     const { isDemoMode } = useDemo();
@@ -86,8 +120,11 @@ export function Recommendations() {
                 api.get('/api/bundles', { params: { _: Date.now() } })
             ]);
 
-            setRules(rulesRes.data || []);
-            setBundles(bundlesRes.data || []);
+            const rulesPayload = Array.isArray(rulesRes.data) ? rulesRes.data : [];
+            const bundlesPayload = Array.isArray(bundlesRes.data) ? bundlesRes.data : [];
+
+            setRules(rulesPayload);
+            setBundles(bundlesPayload);
         } catch (error) {
             console.error('Failed to fetch recommendations:', error);
             setRules([]);
@@ -101,127 +138,144 @@ export function Recommendations() {
         fetchData();
     }, [isDemoMode]);
 
+    const normalizedSearch = searchTerm.toLowerCase();
+    const matchesItems = (items?: string[]) =>
+        (Array.isArray(items) ? items : []).some(item =>
+            typeof item === 'string' && item.toLowerCase().includes(normalizedSearch)
+        );
+
     const filteredRules = rules.filter(rule =>
-        rule.antecedent.some(item => item.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        rule.consequent.some(item => item.toLowerCase().includes(searchTerm.toLowerCase()))
+        matchesItems(rule?.antecedent) || matchesItems(rule?.consequent)
     );
 
     const filteredBundles = bundles.filter(bundle =>
-        bundle.anchor_items.some(item => item.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        bundle.recommended_items.some(item => item.toLowerCase().includes(searchTerm.toLowerCase()))
+        matchesItems(bundle?.anchor_items) || matchesItems(bundle?.recommended_items)
     );
 
     const renderRules = () => (
         <div className="space-y-4">
-            {filteredRules.map((rule, idx) => (
-                <div key={idx} className="bg-surface border border-border rounded-2xl p-6 hover:shadow-md transition-all">
-                    <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
-                                    {rule.context.label}
-                                </span>
-                                <span className="text-sm text-text-muted">
-                                    Lift: {rule.lift.toFixed(2)}× • Confidence: {(rule.confidence * 100).toFixed(0)}%
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2 mb-3">
-                                <span className="font-medium text-text-primary">
-                                    {rule.antecedent.join(' + ')}
-                                </span>
-                                <ArrowRight size={16} className="text-primary" />
-                                <span className="font-medium text-success">
-                                    {rule.consequent.join(' + ')}
-                                </span>
-                            </div>
-                            <p className="text-sm text-text-secondary mb-3">{rule.explanation}</p>
-                        </div>
-                        <div className="text-right ml-4">
-                            {rule.profit_score && (
-                                <div className="text-lg font-bold text-success">
-                                    +₹{rule.profit_score.toFixed(0)}
-                                </div>
-                            )}
-                            <div className="text-xs text-text-muted">est. profit</div>
-                        </div>
-                    </div>
+            {filteredRules.map((rule, idx) => {
+                const profitText = formatCurrency(rule.profit_score);
+                const attachLift = rule.uplift ? formatPercent(rule.uplift.incremental_attach_rate, 1) : '-';
+                const revenueLift = rule.uplift ? formatCurrency(rule.uplift.incremental_revenue) : '-';
+                const marginLift = rule.uplift ? formatCurrency(rule.uplift.incremental_margin) : '-';
 
-                    {rule.uplift && (
-                        <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
-                            <div className="text-center">
-                                <div className="text-sm font-medium text-success">
-                                    +{(rule.uplift.incremental_attach_rate * 100).toFixed(1)}%
+                return (
+                    <div key={idx} className="bg-surface border border-border rounded-2xl p-6 hover:shadow-md transition-all">
+                        <div className="flex items-start justify-between mb-4">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">
+                                        {rule.context?.label ?? 'Overall'}
+                                    </span>
+                                    <span className="text-sm text-text-muted">
+                                        Lift: {formatLift(rule.lift)} • Confidence: {formatPercent(rule.confidence)}
+                                    </span>
                                 </div>
-                                <div className="text-xs text-text-muted">attach rate lift</div>
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="font-medium text-text-primary">
+                                        {formatList(rule.antecedent)}
+                                    </span>
+                                    <ArrowRight size={16} className="text-primary" />
+                                    <span className="font-medium text-success">
+                                        {formatList(rule.consequent)}
+                                    </span>
+                                </div>
+                                <p className="text-sm text-text-secondary mb-3">{rule.explanation}</p>
                             </div>
-                            <div className="text-center">
-                                <div className="text-sm font-medium text-primary">
-                                    +₹{rule.uplift.incremental_revenue.toFixed(0)}
-                                </div>
-                                <div className="text-xs text-text-muted">revenue lift</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-sm font-medium text-accent">
-                                    +₹{rule.uplift.incremental_margin.toFixed(0)}
-                                </div>
-                                <div className="text-xs text-text-muted">margin lift</div>
+                            <div className="text-right ml-4">
+                                {profitText !== '-' && (
+                                    <div className="text-lg font-bold text-success">
+                                        +{profitText}
+                                    </div>
+                                )}
+                                <div className="text-xs text-text-muted">est. profit</div>
                             </div>
                         </div>
-                    )}
-                </div>
-            ))}
+
+                        {rule.uplift && (
+                            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
+                                <div className="text-center">
+                                    <div className="text-sm font-medium text-success">
+                                        {attachLift === '-' ? attachLift : `+${attachLift}`}
+                                    </div>
+                                    <div className="text-xs text-text-muted">attach rate lift</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-sm font-medium text-primary">
+                                        {revenueLift === '-' ? revenueLift : `+${revenueLift}`}
+                                    </div>
+                                    <div className="text-xs text-text-muted">revenue lift</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-sm font-medium text-accent">
+                                        {marginLift === '-' ? marginLift : `+${marginLift}`}
+                                    </div>
+                                    <div className="text-xs text-text-muted">margin lift</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
         </div>
     );
 
     const renderBundles = () => (
         <div className="space-y-4">
-            {filteredBundles.map((bundle, idx) => (
-                <div key={bundle.bundle_id} className="bg-surface border border-border rounded-2xl p-6 hover:shadow-md transition-all">
-                    <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="px-2 py-1 bg-accent/10 text-accent text-xs font-medium rounded">
-                                    {bundle.context.label}
-                                </span>
-                                <span className="text-sm text-text-muted">
-                                    Confidence: {(bundle.confidence * 100).toFixed(0)}% • Lift: {bundle.lift.toFixed(2)}×
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2 mb-3">
-                                <span className="font-medium text-text-primary">
-                                    {bundle.anchor_items.join(' + ')}
-                                </span>
-                                <ArrowRight size={16} className="text-accent" />
-                                <span className="font-medium text-success">
-                                    {bundle.recommended_items.join(' + ')}
-                                </span>
-                            </div>
-                            <p className="text-sm text-text-secondary">{bundle.narrative}</p>
-                        </div>
-                        <div className="text-right ml-4">
-                            <div className="text-lg font-bold text-success">
-                                +₹{bundle.expected_margin.toFixed(0)}
-                            </div>
-                            <div className="text-xs text-text-muted">expected margin</div>
-                        </div>
-                    </div>
+            {filteredBundles.map((bundle, idx) => {
+                const expectedMargin = formatCurrency(bundle.expected_margin);
+                const expectedAttach = formatPercent(bundle.expected_attach_rate, 1);
+                const overallScore = formatNumber(bundle.overall_score, 2);
 
-                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
-                        <div className="text-center">
-                            <div className="text-sm font-medium text-primary">
-                                {(bundle.expected_attach_rate * 100).toFixed(1)}%
+                return (
+                    <div key={bundle.bundle_id || idx} className="bg-surface border border-border rounded-2xl p-6 hover:shadow-md transition-all">
+                        <div className="flex items-start justify-between mb-4">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="px-2 py-1 bg-accent/10 text-accent text-xs font-medium rounded">
+                                        {bundle.context?.label ?? 'Overall'}
+                                    </span>
+                                    <span className="text-sm text-text-muted">
+                                        Confidence: {formatPercent(bundle.confidence)} • Lift: {formatLift(bundle.lift)}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="font-medium text-text-primary">
+                                        {formatList(bundle.anchor_items)}
+                                    </span>
+                                    <ArrowRight size={16} className="text-accent" />
+                                    <span className="font-medium text-success">
+                                        {formatList(bundle.recommended_items)}
+                                    </span>
+                                </div>
+                                <p className="text-sm text-text-secondary">{bundle.narrative || 'No narrative available.'}</p>
                             </div>
-                            <div className="text-xs text-text-muted">expected attach rate</div>
+                            <div className="text-right ml-4">
+                                <div className="text-lg font-bold text-success">
+                                    {expectedMargin === '-' ? expectedMargin : `+${expectedMargin}`}
+                                </div>
+                                <div className="text-xs text-text-muted">expected margin</div>
+                            </div>
                         </div>
-                        <div className="text-center">
-                            <div className="text-sm font-medium text-accent">
-                                {bundle.overall_score.toFixed(2)}
+
+                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+                            <div className="text-center">
+                                <div className="text-sm font-medium text-primary">
+                                    {expectedAttach}
+                                </div>
+                                <div className="text-xs text-text-muted">expected attach rate</div>
                             </div>
-                            <div className="text-xs text-text-muted">overall score</div>
+                            <div className="text-center">
+                                <div className="text-sm font-medium text-accent">
+                                    {overallScore}
+                                </div>
+                                <div className="text-xs text-text-muted">overall score</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 

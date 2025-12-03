@@ -48,9 +48,14 @@ class CSVImporter:
             # 1. Load & validate required columns
             pd = _get_pandas()
             df = pd.read_csv(filepath)
+
+            # Check if this looks like a products catalog file instead of transactions
+            if 'base_price' in df.columns and 'transaction_id' not in df.columns:
+                raise ValueError("This appears to be a products catalog file. Please upload a transactions CSV file with columns: transaction_id, timestamp, store_id, item_id, price, etc.")
+
             missing_cols = [col for col in self.REQUIRED_COLS if col not in df.columns]
             if missing_cols:
-                raise ValueError(f"Missing required columns: {missing_cols}")
+                raise ValueError(f"Missing required columns: {missing_cols}. Expected: {self.REQUIRED_COLS}")
 
             # 2. Validate data types and ranges
             df, validation_errors = self._validate_data(df)

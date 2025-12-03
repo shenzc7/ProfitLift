@@ -55,14 +55,50 @@ export function Upload() {
         }
     }, []);
 
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const validateCSVFile = async (file: File): Promise<string | null> => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target?.result as string;
+                const firstLine = text.split('\n')[0];
+                const columns = firstLine.split(',').map(col => col.trim());
+
+                // Check if this looks like a products catalog file
+                if (columns.includes('base_price') && !columns.includes('transaction_id')) {
+                    resolve('This appears to be a products catalog file. Please upload a transactions CSV file instead.');
+                    return;
+                }
+
+                // Check for required columns
+                const requiredCols = ['transaction_id', 'timestamp', 'store_id', 'item_id', 'price'];
+                const missingCols = requiredCols.filter(col => !columns.includes(col));
+                if (missingCols.length > 0) {
+                    resolve(`Missing required columns: ${missingCols.join(', ')}`);
+                    return;
+                }
+
+                resolve(null); // File is valid
+            };
+            reader.readAsText(file);
+        });
+    };
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const selectedFile = e.target.files[0];
             if (selectedFile.type === 'text/csv' || selectedFile.name.endsWith('.csv')) {
-                setFile(selectedFile);
-                setError(null);
+                // Validate file content
+                const validationError = await validateCSVFile(selectedFile);
+                if (validationError) {
+                    setError(validationError);
+                    setFile(null);
+                } else {
+                    setFile(selectedFile);
+                    setError(null);
+                }
             } else {
                 setError('Please upload a CSV file');
+                setFile(null);
             }
         }
     };
@@ -271,14 +307,20 @@ export function Upload() {
             {/* Sample Data Info */}
             <div className="bg-surface border border-border rounded-2xl p-6">
                 <h3 className="text-lg font-semibold text-text-primary mb-4">Expected CSV Format</h3>
+                <p className="text-text-secondary mb-4">
+                    Upload a <strong>transactions CSV file</strong> with customer purchase data. Not a products catalog.
+                </p>
                 <div className="bg-surface-elevated rounded-lg p-4 font-mono text-sm text-text-secondary mb-4">
-                    transaction_id,customer_id,timestamp,store_id,item_id,item_name,quantity,price,discount_flag<br/>
-                    TXN001,CUST001,2024-01-01 10:30:00,STORE001,ITEM001,Milk,1,50.00,0<br/>
-                    TXN001,CUST001,2024-01-01 10:30:00,STORE001,ITEM002,Bread,1,30.00,0
+                    <div className="font-semibold mb-2">Required columns:</div>
+                    transaction_id,timestamp,store_id,item_id,price<br/>
+                    <br/>
+                    <div className="font-semibold mb-2">Sample data:</div>
+                    T001,2023-10-25 08:30:00,STORE_MUMBAI,MILK_500ML,28<br/>
+                    T001,2023-10-25 08:30:00,STORE_MUMBAI,BREAD_BROWN,45
                 </div>
                 <div className="flex items-center gap-2 text-sm text-text-muted">
                     <Download size={14} />
-                    <span>Download sample data to see the expected format</span>
+                    <span>Use the demo_transactions.csv file in the project root</span>
                 </div>
             </div>
         </div>
