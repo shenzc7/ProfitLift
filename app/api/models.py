@@ -161,6 +161,12 @@ class BundleResponse(BaseModel):
         description="Add-on items to suggest alongside the anchor items."
     )
     context: ContextSummary = Field(description="Context segment for the bundle.")
+    confidence: Optional[float] = Field(
+        default=None, description="Confidence of the underlying association rule."
+    )
+    lift: Optional[float] = Field(
+        default=None, description="Lift of the underlying association rule."
+    )
     overall_score: float = Field(
         description="Composite score used to rank bundle opportunities."
     )

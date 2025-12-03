@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import {
     Activity,
     ArrowRight,
-    BarChart3,
     Brain,
     Gift,
     RefreshCw,

@@ -22,7 +22,6 @@ type ValidationStats = {
 
 export function Validation() {
     const [stats, setStats] = useState<ValidationStats | null>(null);
-    const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchStats = async () => {
@@ -32,7 +31,6 @@ export function Validation() {
         } catch (error) {
             console.error('Failed to fetch validation stats:', error);
         } finally {
-            setLoading(false);
             setRefreshing(false);
         }
     };

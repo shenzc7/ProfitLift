@@ -4,7 +4,6 @@ import {
     RefreshCw,
     Trash2,
     Download,
-    Upload,
     Moon,
     Sun,
     Monitor,

@@ -1,15 +1,10 @@
 import { useEffect, useState } from 'react';
 import {
     ArrowRight,
-    BarChart3,
     Brain,
-    ChevronRight,
-    Filter,
     Gift,
     RefreshCw,
-    Search,
-    TrendingUp,
-    Zap
+    Search
 } from 'lucide-react';
 import { api } from '../lib/api';
 import clsx from 'clsx';

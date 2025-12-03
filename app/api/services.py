@@ -153,12 +153,17 @@ def _rule_to_bundle_response(
     bundle_id = f"{'-'.join(sorted(rule.antecedent))}__{('-'.join(sorted(rule.consequent)))}__{str(rule.context)}"
     anchor_items = sorted(rule.antecedent)
     recommended_items = sorted(rule.consequent)
-    expected_margin = uplift.incremental_margin if uplift else rule.profit_score
+    has_positive_uplift = bool(uplift and uplift.incremental_attach_rate > 0)
+    expected_margin = (
+        uplift.incremental_margin
+        if has_positive_uplift and uplift.incremental_margin is not None
+        else (rule.profit_score or 0.0)
+    )
     expected_attach = (
-        uplift.treatment_rate if uplift and uplift.treatment_rate > 0 else rule.confidence
+        uplift.treatment_rate if has_positive_uplift and uplift.treatment_rate > 0 else rule.confidence
     )
 
-    if uplift and uplift.incremental_attach_rate > 0:
+    if has_positive_uplift:
         narrative = (
             f"{str(rule.context)} shoppers who buy {', '.join(anchor_items)} respond to "
             f"featuring {', '.join(recommended_items)}, adding {uplift.incremental_attach_rate:.1%} "
@@ -180,6 +185,8 @@ def _rule_to_bundle_response(
         expected_margin=expected_margin,
         expected_attach_rate=expected_attach,
         narrative=narrative,
+        confidence=rule.confidence,
+        lift=rule.lift,
         uplift=uplift_payload,
     )
 
@@ -210,9 +217,37 @@ class AnalyticsService:
         # Simple in-memory cache for mined rules
         self._rules_cache: Dict[str, List[ContextualRule]] = {}
 
+        # Ensure fresh installs have data to work with (use bundled demo CSV).
+        self._maybe_seed_demo_data()
+
     def clear_cache(self):
         """Clear the rules cache."""
         self._rules_cache = {}
+
+    def _maybe_seed_demo_data(self):
+        """Load bundled demo data so recommendations are not empty on first run."""
+        try:
+            if self.db.get_table_count("transactions") > 0:
+                return
+        except Exception as exc:  # pragma: no cover - defensive
+            self.logger.warning("Could not check existing data: %s", exc)
+            return
+
+        demo_path = _resolve_path(Path("demo_transactions.csv"))
+        if not demo_path.exists():
+            self.logger.warning("Demo dataset not found at %s", demo_path)
+            return
+
+        self.logger.info("Seeding demo dataset from %s", demo_path)
+        result = self.csv_importer.import_csv(str(demo_path))
+        if result.rows_imported <= 0:
+            self.logger.warning("Demo seed failed: %s", result.errors)
+        else:
+            self.logger.info(
+                "Seeded demo dataset (%s rows, %s transactions)",
+                result.rows_imported,
+                result.transactions_created,
+            )
 
     # ------------------------------------------------------------------ #
     # Data loading helpers
