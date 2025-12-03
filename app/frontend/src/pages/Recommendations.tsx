@@ -181,7 +181,7 @@ export function Recommendations() {
                                         {formatList(rule.consequent)}
                                     </span>
                                 </div>
-                                <p className="text-sm text-text-secondary mb-3">{rule.explanation}</p>
+                                <p className="text-sm text-text-secondary mb-3">{rule.explanation || 'No explanation available.'}</p>
                             </div>
                             <div className="text-right ml-4">
                                 {profitText !== '-' && (
