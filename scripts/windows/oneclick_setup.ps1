@@ -28,7 +28,13 @@ function Ensure-Admin {
     Write-Step "Requesting administrator privileges for installs (UAC prompt)..."
 
     # Prefer rerunning the same script if we have a path; otherwise use the remote one-liner again.
-    $scriptPath = $MyInvocation.MyCommand.Path
+    $scriptPath = $null
+    if ($MyInvocation.MyCommand -is [System.Management.Automation.ExternalScriptInfo]) {
+        $scriptPath = $MyInvocation.MyCommand.Path
+    } elseif (Get-Variable -Name PSCommandPath -ErrorAction SilentlyContinue) {
+        $scriptPath = $PSCommandPath
+    }
+
     if ($scriptPath -and (Test-Path $scriptPath)) {
         $args = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$scriptPath`"")
         if ($RepoUrl)    { $args += "-RepoUrl";    $args += "`"$RepoUrl`"" }
