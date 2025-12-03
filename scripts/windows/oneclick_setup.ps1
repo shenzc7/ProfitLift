@@ -17,6 +17,34 @@ try { Start-Transcript -Path $logPath -Append -ErrorAction SilentlyContinue } ca
 function Write-Step { param([string]$Message) Write-Host "`n==> $Message" -ForegroundColor Cyan }
 function Write-Info { param([string]$Message) Write-Host "    $Message" }
 
+function Ensure-Admin {
+    # Some winget installs (VS Build Tools) require elevation; auto-relaunch as admin if needed.
+    $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($id)
+    if ($principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+        return
+    }
+
+    Write-Step "Requesting administrator privileges for installs (UAC prompt)..."
+
+    # Prefer rerunning the same script if we have a path; otherwise use the remote one-liner again.
+    $scriptPath = $MyInvocation.MyCommand.Path
+    if ($scriptPath -and (Test-Path $scriptPath)) {
+        $args = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$scriptPath`"")
+        if ($RepoUrl)    { $args += "-RepoUrl";    $args += "`"$RepoUrl`"" }
+        if ($Branch)     { $args += "-Branch";     $args += "`"$Branch`"" }
+        if ($InstallDir) { $args += "-InstallDir"; $args += "`"$InstallDir`"" }
+        if ($UseLocalRepo) { $args += "-UseLocalRepo" }
+        if ($ForceRebuild) { $args += "-ForceRebuild" }
+        Start-Process -FilePath "powershell.exe" -Verb RunAs -ArgumentList $args
+    } else {
+        $oneLiner = 'irm https://raw.githubusercontent.com/shenzc7/ProfitLift/main/scripts/windows/oneclick_setup.ps1 | iex'
+        Start-Process -FilePath "powershell.exe" -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"$oneLiner`""
+    }
+
+    exit
+}
+
 function Assert-Winget {
     if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
         throw "winget is required but not available. Install winget from Microsoft Store, then rerun this script."
@@ -305,7 +333,9 @@ Write-Host "Log: $logPath"
 Write-Host ""
 
 try {
+    Ensure-Admin
     Write-Step "Installing prerequisites with winget (idempotent)"
+    Write-Info "This step may take several minutes (Visual Studio Build Tools download is ~2 GB)."
     Ensure-Prereqs
 
     $tools = Preflight-Checks
