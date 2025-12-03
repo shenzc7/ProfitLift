@@ -11,6 +11,9 @@ $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 Set-StrictMode -Version Latest
 
+# Marker to avoid re-requesting elevation in child process.
+if (-not $env:PROFITLIFT_ELEVATED) { $env:PROFITLIFT_ELEVATED = "" }
+
 $logPath = Join-Path $env:TEMP "profitlift_setup.log"
 try { Start-Transcript -Path $logPath -Append -ErrorAction SilentlyContinue } catch {}
 
@@ -21,32 +24,17 @@ function Ensure-Admin {
     # Some winget installs (VS Build Tools) require elevation; auto-relaunch as admin if needed.
     $id = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($id)
-    if ($principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    if ($env:PROFITLIFT_ELEVATED -eq "1" -or $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+        $env:PROFITLIFT_ELEVATED = "1"
         return
     }
 
     Write-Step "Requesting administrator privileges for installs (UAC prompt)..."
 
-    # Prefer rerunning the same script if we have a path; otherwise use the remote one-liner again.
-    $scriptPath = $null
-    if ($MyInvocation.MyCommand -is [System.Management.Automation.ExternalScriptInfo]) {
-        $scriptPath = $MyInvocation.MyCommand.Path
-    } elseif (Get-Variable -Name PSCommandPath -ErrorAction SilentlyContinue) {
-        $scriptPath = $PSCommandPath
-    }
-
-    if ($scriptPath -and (Test-Path $scriptPath)) {
-        $args = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$scriptPath`"")
-        if ($RepoUrl)    { $args += "-RepoUrl";    $args += "`"$RepoUrl`"" }
-        if ($Branch)     { $args += "-Branch";     $args += "`"$Branch`"" }
-        if ($InstallDir) { $args += "-InstallDir"; $args += "`"$InstallDir`"" }
-        if ($UseLocalRepo) { $args += "-UseLocalRepo" }
-        if ($ForceRebuild) { $args += "-ForceRebuild" }
-        Start-Process -FilePath "powershell.exe" -Verb RunAs -ArgumentList $args
-    } else {
-        $oneLiner = 'irm https://raw.githubusercontent.com/shenzc7/ProfitLift/main/scripts/windows/oneclick_setup.ps1 | iex'
-        Start-Process -FilePath "powershell.exe" -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"$oneLiner`""
-    }
+    # Always relaunch from canonical remote URL (avoids $MyInvocation.Path issues when invoked via iex).
+    $oneLiner = "`${env:PROFITLIFT_ELEVATED}='1'; irm https://raw.githubusercontent.com/shenzc7/ProfitLift/main/scripts/windows/oneclick_setup.ps1 | iex"
+    $argList = "-NoProfile -ExecutionPolicy Bypass -Command `"$oneLiner`""
+    Start-Process -FilePath "powershell.exe" -Verb RunAs -ArgumentList $argList
 
     exit
 }
